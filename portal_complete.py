@@ -100,12 +100,12 @@ class PracticeSession:
         self.correct_answers = 0
         self.total_hints_used = 0
         self.hint_used_for_current = False
-    
+
     def get_current_question(self):
         if self.current_index < len(self.questions):
             return self.questions[self.current_index]
         return None
-    
+
     def get_hint(self):
         q = self.get_current_question()
         if q:
@@ -113,19 +113,19 @@ class PracticeSession:
             self.total_hints_used += 1
             return q.get('hint', 'Think about the SQL syntax!')
         return None
-    
+
     def submit_answer(self, user_answer):
         q = self.get_current_question()
         if not q:
             return {'error': 'No question'}
-        
+
         correct = q['answer'].strip().lower().replace(';', '').strip() == user_answer.strip().lower().replace(';', '').strip()
-        
+
         total_score = 100 if correct else 50
         if self.hint_used_for_current:
             total_score -= 20
         total_score = max(0, total_score)
-        
+
         result = {
             'is_correct': correct,
             'total_score': total_score,
@@ -135,7 +135,7 @@ class PracticeSession:
             'tip': q.get('tip', ''),
             'feedback': []
         }
-        
+
         if correct and self.hint_used_for_current:
             result['feedback'].append("✅ Correct! (Hint penalty: -20)")
         elif correct:
@@ -144,21 +144,21 @@ class PracticeSession:
             result['feedback'].append("❌ Incorrect. Hint used: -20 penalty.")
         else:
             result['feedback'].append("❌ Incorrect. Review the correct answer.")
-        
+
         self.results.append(result)
         if correct:
             self.correct_answers += 1
-        
+
         self.hint_used_for_current = False
         self.current_index += 1
-        
+
         return result
-    
+
     def get_stats(self):
         total = len(self.results)
         correct = self.correct_answers
         accuracy = (correct / total * 100) if total > 0 else 0
-        
+
         return {
             'total_questions': len(self.questions),
             'answered': total,
@@ -182,25 +182,22 @@ def practice():
     return render_template('practice_interactive.html')
 
 # ============================================================
-# PRACTICE API ROUTES
+# PRACTICE API
 # ============================================================
 
 @app.route('/api/practice/start', methods=['POST'])
 def start_practice():
     try:
         data = request.get_json()
-        print(f"📥 Practice start: {data}")
-        
         if not data:
             return jsonify({'error': 'No data received'}), 400
-        
+
         user_name = data.get('user_name', 'Anonymous')
         beginner = int(data.get('beginner', 2))
         intermediate = int(data.get('intermediate', 2))
         advanced = int(data.get('advanced', 1))
         expert = int(data.get('expert', 0))
-        
-        # Generate questions
+
         questions = []
         for diff, count in [('Beginner', beginner), ('Intermediate', intermediate), ('Advanced', advanced), ('Expert', expert)]:
             for i in range(min(count, len(SAMPLE_QUESTIONS))):
@@ -208,24 +205,20 @@ def start_practice():
                 q['id'] = len(questions) + 1
                 q['difficulty'] = diff
                 questions.append(q)
-        
+
         if not questions:
             return jsonify({'error': 'No questions generated'}), 400
-        
-        # Create session
+
         session_id = f"session_{int(datetime.now().timestamp())}"
         practice_sessions[session_id] = PracticeSession(user_name, questions)
-        
-        print(f"✅ Session created: {session_id} with {len(questions)} questions")
-        
+
         return jsonify({
             'success': True,
             'session_id': session_id,
             'total_questions': len(questions)
         })
-        
+
     except Exception as e:
-        print(f"❌ Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/practice/question/<session_id>', methods=['GET'])
@@ -233,13 +226,13 @@ def get_practice_question(session_id):
     try:
         if session_id not in practice_sessions:
             return jsonify({'error': 'Session not found'}), 404
-        
+
         session = practice_sessions[session_id]
         question = session.get_current_question()
-        
+
         if not question:
             return jsonify({'complete': True, 'stats': session.get_stats()})
-        
+
         return jsonify({
             'question': {
                 'id': question.get('id', session.current_index + 1),
@@ -252,7 +245,6 @@ def get_practice_question(session_id):
             'stats': session.get_stats()
         })
     except Exception as e:
-        print(f"❌ Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/practice/hint/<session_id>', methods=['GET'])
@@ -260,19 +252,18 @@ def get_practice_hint(session_id):
     try:
         if session_id not in practice_sessions:
             return jsonify({'error': 'Session not found'}), 404
-        
+
         session = practice_sessions[session_id]
         hint = session.get_hint()
-        
+
         if not hint:
             return jsonify({'error': 'No hint available'}), 404
-        
+
         return jsonify({
             'hint': hint,
             'penalty': 20
         })
     except Exception as e:
-        print(f"❌ Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/practice/answer/<session_id>', methods=['POST'])
@@ -280,23 +271,22 @@ def submit_practice_answer(session_id):
     try:
         if session_id not in practice_sessions:
             return jsonify({'error': 'Session not found'}), 404
-        
+
         data = request.get_json()
         user_answer = data.get('answer', '')
-        
+
         session = practice_sessions[session_id]
         result = session.submit_answer(user_answer)
-        
+
         if 'error' in result:
             return jsonify({'error': result['error']}), 400
-        
+
         return jsonify({
             'result': result,
             'stats': session.get_stats(),
             'complete': session.current_index >= len(session.questions)
         })
     except Exception as e:
-        print(f"❌ Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/practice/next/<session_id>', methods=['POST'])
@@ -304,14 +294,14 @@ def next_practice_question(session_id):
     try:
         if session_id not in practice_sessions:
             return jsonify({'error': 'Session not found'}), 404
-        
+
         session = practice_sessions[session_id]
         session.current_index += 1
         question = session.get_current_question()
-        
+
         if not question:
             return jsonify({'complete': True, 'stats': session.get_stats()})
-        
+
         return jsonify({
             'question': {
                 'id': session.current_index + 1,
@@ -322,7 +312,6 @@ def next_practice_question(session_id):
             'stats': session.get_stats()
         })
     except Exception as e:
-        print(f"❌ Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/practice/stats/<session_id>', methods=['GET'])
@@ -330,11 +319,10 @@ def get_practice_stats(session_id):
     try:
         if session_id not in practice_sessions:
             return jsonify({'error': 'Session not found'}), 404
-        
+
         session = practice_sessions[session_id]
         return jsonify(session.get_stats())
     except Exception as e:
-        print(f"❌ Error: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ============================================================
@@ -347,23 +335,23 @@ def generate_workbook():
         data = request.get_json()
         if not data:
             return jsonify({'error': 'No JSON data received'}), 400
-            
+
         file_path = data.get('file_path', 'examples/ecommerce.sql')
         question_count = int(data.get('question_count', 100))
-        
+
         if not Path(file_path).exists():
             return jsonify({'error': f'File not found: {file_path}'}), 400
-        
+
         cmd = f"python main.py {file_path} {question_count}"
-        
+
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=BASE_DIR)
-        
+
         if result.returncode != 0:
             return jsonify({
                 'error': 'Generation failed',
                 'output': result.stdout + result.stderr
             }), 500
-        
+
         generated_files = []
         for ext in ['docx', 'sql', 'txt', 'pdf']:
             for f in OUTPUT_DIR.glob(f"*.{ext}"):
@@ -374,14 +362,14 @@ def generate_workbook():
                         'modified': datetime.fromtimestamp(f.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
                         'path': str(f)
                     })
-        
+
         return jsonify({
             'success': True,
             'output': result.stdout,
             'files': generated_files,
             'question_count': question_count
         })
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -394,23 +382,23 @@ def generate_database():
     try:
         data = request.get_json()
         rows = int(data.get('rows', 100)) if data else 100
-        
+
         cmd = f"python database_generator.py"
-        
+
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=BASE_DIR)
-        
+
         if result.returncode != 0:
             return jsonify({
                 'error': 'Database generation failed',
                 'output': result.stdout + result.stderr
             }), 500
-        
+
         return jsonify({
             'success': True,
             'output': result.stdout,
             'rows': rows
         })
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -431,19 +419,19 @@ def list_files():
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
-    
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
-    
+
     ext = Path(file.filename).suffix.lower()
     if ext not in ['.sql', '.py', '.txt']:
         return jsonify({'error': 'Only .sql, .py, .txt files allowed'}), 400
-    
+
     filename = file.filename
     filepath = UPLOAD_DIR / filename
     file.save(filepath)
-    
+
     return jsonify({
         'success': True,
         'filename': filename,
@@ -488,6 +476,68 @@ def get_status():
     })
 
 # ============================================================
+# DATABASE VIEWER
+# ============================================================
+
+@app.route('/db_viewer')
+def db_viewer():
+    return render_template('db_viewer.html')
+
+@app.route('/api/db/tables', methods=['GET'])
+def get_db_tables():
+    try:
+        import psycopg2
+        conn = psycopg2.connect(
+            dbname="postgres",
+            user="postgres",
+            password="4m4teur",
+            host="localhost",
+            port="5432"
+        )
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema='public'
+            ORDER BY table_name;
+        """)
+        tables = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+        return jsonify({'tables': tables})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/db/view/<table_name>', methods=['GET'])
+def view_table(table_name):
+    try:
+        import psycopg2
+        conn = psycopg2.connect(
+            dbname="postgres",
+            user="postgres",
+            password="4m4teur",
+            host="localhost",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM {table_name} LIMIT 100;")
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+
+        result = []
+        for row in rows:
+            result.append(dict(zip(columns, row)))
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({'rows': result, 'count': len(result)})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================
 # MAIN
 # ============================================================
 
@@ -505,14 +555,14 @@ def find_free_port():
 
 if __name__ == '__main__':
     port = find_free_port()
-    
+
     if port is None:
         print("❌ No free ports available")
         sys.exit(1)
-    
+
     if port != 5002:
         print(f"⚠️  Port 5002 is busy. Using port {port} instead.")
-    
+
     print(f"\n🚀 PostgreSQL Practice - Complete Portal")
     print(f"🌐 Open: http://localhost:{port}")
     print("=" * 50)
@@ -524,5 +574,5 @@ if __name__ == '__main__':
     print("=" * 50)
     print("Press Ctrl+C to stop")
     print("")
-    
-    app.run(debug=False, host='0.0.0.0', port=port)
+
+    app.run(debug=True, host='0.0.0.0', port=port)

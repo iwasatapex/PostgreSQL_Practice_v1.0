@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🎯 SQL Practice</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; }
+        .btn { padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+        input, select { padding: 8px; margin: 5px 0; width: 100%; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .question-box { background: #f8f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        textarea { width: 100%; min-height: 120px; font-family: monospace; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .feedback { padding: 15px; border-radius: 5px; margin: 10px 0; display: none; }
+        .feedback.correct { background: #d4edda; border: 1px solid #28a745; display: block; }
+        .feedback.incorrect { background: #f8d7da; border: 1px solid #dc3545; display: block; }
+        .hidden { display: none; }
+        .debug-box { background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; white-space: pre-wrap; margin-top: 20px; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎯 SQL Practice</h1>
+        <a href="/">🏠 Back</a>
+    </div>
+
+    <!-- Setup -->
+    <div class="card" id="setupCard">
+        <h2>Start Practice</h2>
+        <label>Your Name</label>
+        <input type="text" id="userName" value="Anonymous">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;">
+            <div><label>⭐ Beginner</label><input type="number" id="beginner" value="2"></div>
+            <div><label>⭐⭐ Intermediate</label><input type="number" id="intermediate" value="2"></div>
+            <div><label>⭐⭐⭐ Advanced</label><input type="number" id="advanced" value="1"></div>
+            <div><label>⭐⭐⭐⭐ Expert</label><input type="number" id="expert" value="0"></div>
+        </div>
+        <button class="btn btn-primary" id="startBtn" style="width:100%; padding:12px; font-size:18px;">🚀 Start Practice</button>
+        <div id="debugLog" class="debug-box">Waiting for action...</div>
+    </div>
+
+    <!-- Practice -->
+    <div class="card hidden" id="practiceCard">
+        <div style="display:flex; justify-content:space-between;">
+            <h3 id="questionNum">Question 1 of 10</h3>
+            <div><span id="scoreDisplay">✅ 0</span> <span id="answeredDisplay">📝 0</span> <span id="hintDisplay">💡 0</span></div>
+        </div>
+        <div class="question-box">
+            <span id="topicDisplay" style="background:#667eea;color:white;padding:2px 10px;border-radius:10px;">Topic</span>
+            <span id="diffDisplay" style="padding:2px 10px;border-radius:10px;background:#d4edda;">Difficulty</span>
+            <h3 id="questionText">Loading...</h3>
+        </div>
+        <textarea id="answerInput" placeholder="Write your SQL query..."></textarea>
+        <div style="margin-top:10px;">
+            <button class="btn btn-success" id="submitBtn">📤 Submit</button>
+            <button class="btn btn-warning" id="hintBtn">💡 Hint (-20)</button>
+            <button class="btn btn-danger" id="skipBtn">⏭️ Skip</button>
+            <button class="btn" style="background:#6c757d;color:white;" id="endBtn">🏁 End</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        // ============================================================
+        // GLOBAL DEBUG
+        // ============================================================
+        var debugLog = document.getElementById('debugLog');
+        function log(msg) {
+            debugLog.textContent += '\n[' + new Date().toLocaleTimeString() + '] ' + msg;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(msg);
+        }
+        log('🟢 Page loaded');
+
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        var setupCard = document.getElementById('setupCard');
+        var practiceCard = document.getElementById('practiceCard');
+        var startBtn = document.getElementById('startBtn');
+        var userName = document.getElementById('userName');
+        var beginner = document.getElementById('beginner');
+        var intermediate = document.getElementById('intermediate');
+        var advanced = document.getElementById('advanced');
+        var expert = document.getElementById('expert');
+        var questionNum = document.getElementById('questionNum');
+        var scoreDisplay = document.getElementById('scoreDisplay');
+        var answeredDisplay = document.getElementById('answeredDisplay');
+        var hintDisplay = document.getElementById('hintDisplay');
+        var topicDisplay = document.getElementById('topicDisplay');
+        var diffDisplay = document.getElementById('diffDisplay');
+        var questionText = document.getElementById('questionText');
+        var answerInput = document.getElementById('answerInput');
+        var feedback = document.getElementById('feedback');
+        var submitBtn = document.getElementById('submitBtn');
+        var hintBtn = document.getElementById('hintBtn');
+        var skipBtn = document.getElementById('skipBtn');
+        var endBtn = document.getElementById('endBtn');
+
+        var sessionId = null;
+        var currentQuestion = null;
+        var isAnswered = false;
+
+        // ============================================================
+        // START BUTTON
+        // ============================================================
+        startBtn.addEventListener('click', function() {
+            log('🚀 Start button clicked');
+            var name = userName.value || 'Anonymous';
+            var b = parseInt(beginner.value) || 0;
+            var i = parseInt(intermediate.value) || 0;
+            var a = parseInt(advanced.value) || 0;
+            var e = parseInt(expert.value) || 0;
+
+            log('📊 Counts: ' + JSON.stringify({b: b, i: i, a: a, e: e}));
+
+            if (b + i + a + e === 0) {
+                alert('Select at least one question!');
+                log('❌ No questions selected');
+                return;
+            }
+
+            startBtn.disabled = true;
+            startBtn.textContent = '⏳ Loading...';
+
+            fetch('/api/practice/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_name: name,
+                    beginner: b,
+                    intermediate: i,
+                    advanced: a,
+                    expert: e
+                })
+            })
+            .then(function(response) {
+                log('📡 Response status: ' + response.status);
+                return response.json();
+            })
+            .then(function(data) {
+                log('📦 Response data: ' + JSON.stringify(data));
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    log('❌ API error: ' + data.error);
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🚀 Start Practice';
+                    return;
+                }
+                sessionId = data.session_id;
+                log('✅ Session created: ' + sessionId);
+                setupCard.classList.add('hidden');
+                practiceCard.classList.remove('hidden');
+                loadQuestion();
+            })
+            .catch(function(error) {
+                alert('Fetch error: ' + error.message);
+                log('❌ Fetch error: ' + error.message);
+                startBtn.disabled = false;
+                startBtn.textContent = '🚀 Start Practice';
+            });
+        });
+
+        // ============================================================
+        // LOAD QUESTION
+        // ============================================================
+        function loadQuestion() {
+            log('📥 Loading question for session: ' + sessionId);
+            fetch('/api/practice/question/' + sessionId)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                log('📦 Question data: ' + JSON.stringify(data));
+                if (data.complete) {
+                    questionText.textContent = '🎉 Practice Complete!';
+                    answerInput.style.display = 'none';
+                    submitBtn.disabled = true;
+                    hintBtn.disabled = true;
+                    return;
+                }
+                currentQuestion = data.question;
+                questionNum.textContent = 'Question ' + data.question.id + ' of ' + data.stats.total_questions;
+                questionText.textContent = currentQuestion.question;
+                topicDisplay.textContent = currentQuestion.topic;
+                diffDisplay.textContent = currentQuestion.difficulty;
+                answerInput.value = '';
+                feedback.className = 'feedback';
+                feedback.style.display = 'none';
+                isAnswered = false;
+                updateStats(data.stats);
+                log('✅ Question loaded: ' + currentQuestion.id);
+            })
+            .catch(function(error) {
+                alert('Error loading question: ' + error.message);
+                log('❌ Load question error: ' + error.message);
+            });
+        }
+
+        // ============================================================
+        // SUBMIT ANSWER
+        // ============================================================
+        submitBtn.addEventListener('click', function() {
+            if (isAnswered) {
+                alert('Already answered!');
+                return;
+            }
+            var answer = answerInput.value.trim();
+            if (!answer) {
+                alert('Write your SQL query!');
+                return;
+            }
+            log('📤 Submitting answer: ' + answer);
+            fetch('/api/practice/answer/' + sessionId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer: answer })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                log('📦 Answer response: ' + JSON.stringify(data));
+                if (data.error) {
+                    alert('Answer error: ' + data.error);
+                    log('❌ Answer error: ' + data.error);
+                    return;
+                }
+                isAnswered = true;
+                var result = data.result;
+                feedback.style.display = 'block';
+                if (result.is_correct) {
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = '<strong>✅ Correct!</strong> Score: ' + result.total_score + '/100';
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = '<strong>❌ Incorrect</strong> Score: ' + result.total_score + '/100<br>' +
+                        '<strong>Correct Answer:</strong> ' + result.correct_answer;
+                }
+                if (result.explanation) {
+                    feedback.innerHTML += '<br><strong>Explanation:</strong> ' + result.explanation;
+                }
+                if (result.tip) {
+                    feedback.innerHTML += '<br><strong>Tip:</strong> ' + result.tip;
+                }
+                updateStats(data.stats);
+                if (data.complete) {
+                    questionText.textContent = '🎉 Practice Complete!';
+                    answerInput.style.display = 'none';
+                    submitBtn.disabled = true;
+                    hintBtn.disabled = true;
+                } else {
+                    // Auto advance after 2 seconds
+                    setTimeout(loadQuestion, 2000);
+                }
+            })
+            .catch(function(error) {
+                alert('Submit error: ' + error.message);
+                log('❌ Submit error: ' + error.message);
+            });
+        });
+
+        // ============================================================
+        // HINT
+        // ============================================================
+        hintBtn.addEventListener('click', function() {
+            if (isAnswered) {
+                alert('Already answered!');
+                return;
+            }
+            fetch('/api/practice/hint/' + sessionId)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    alert('Hint error: ' + data.error);
+                    log('❌ Hint error: ' + data.error);
+                    return;
+                }
+                alert('💡 Hint: ' + data.hint + '\n(-20 points penalty)');
+                log('💡 Hint shown: ' + data.hint);
+            })
+            .catch(function(error) {
+                alert('Hint error: ' + error.message);
+                log('❌ Hint error: ' + error.message);
+            });
+        });
+
+        // ============================================================
+        // SKIP
+        // ============================================================
+        skipBtn.addEventListener('click', function() {
+            if (!isAnswered && !confirm('Skip without answering?')) return;
+            loadQuestion();
+        });
+
+        // ============================================================
+        // END
+        // ============================================================
+        endBtn.addEventListener('click', function() {
+            if (confirm('End practice?')) {
+                practiceCard.classList.add('hidden');
+                setupCard.classList.remove('hidden');
+                sessionId = null;
+                startBtn.disabled = false;
+                startBtn.textContent = '🚀 Start Practice';
+                log('🏁 Practice ended');
+            }
+        });
+
+        // ============================================================
+        // UPDATE STATS
+        // ============================================================
+        function updateStats(stats) {
+            if (!stats) return;
+            scoreDisplay.textContent = '✅ ' + stats.correct;
+            answeredDisplay.textContent = '📝 ' + stats.answered;
+            hintDisplay.textContent = '💡 ' + (stats.total_hints_used || 0);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{
+  "user_name": "Anonymous",
+  "current_index": 0,
+  "results": [],
+  "correct_answers": 0,
+  "total_hints_used": 0,
+  "timestamp": "2026-07-20T03:19:56.642535",
+  "questions": [
+    {
+      "id": 1,
+      "topic": "SELECT",
+      "difficulty": "Beginner",
+      "question": "Show only action, user_id, log_id from the logs table.",
+      "answer": "SELECT action, user_id, log_id FROM logs;",
+      "explanation": "SELECT with specific columns returns only those columns.",
+      "tip": "Specify columns for better performance."
+    },
+    {
+      "id": 2,
+      "topic": "CTE",
+      "difficulty": "Advanced",
+      "question": "Write a CTE to filter products and then query it.",
+      "answer": "WITH filtered AS (SELECT * FROM products WHERE condition) SELECT * FROM filtered;",
+      "explanation": "WITH creates a temporary named result set.",
+      "tip": "CTEs make complex queries more readable and reusable."
+    },
+    {
+      "id": 5,
+      "topic": "SELECT",
+      "difficulty": "Beginner",
+      "question": "List all records from the order_items table.",
+      "answer": "SELECT * FROM order_items;",
+      "explanation": "SELECT * returns every column and row from order_items.",
+      "tip": "Use specific columns instead of SELECT * in production."
+    },
+    {
+      "id": 20,
+      "topic": "GROUP BY",
+      "difficulty": "Intermediate",
+      "question": "Count records in reviews grouped by comment.",
+      "answer": "SELECT comment, COUNT(*) FROM reviews GROUP BY comment;",
+      "explanation": "GROUP BY comment creates groups and COUNT counts each group.",
+      "tip": "All non-aggregated columns in SELECT must be in GROUP BY."
+    },
+    {
+      "id": 34,
+      "topic": "JOIN",
+      "difficulty": "Intermediate",
+      "question": "Join the orders table with the payments table.",
+      "answer": "SELECT * FROM orders JOIN payments ON orders.id = payments.orders_id;",
+      "explanation": "INNER JOIN connects orders to payments on the foreign key.",
+      "tip": "Use table aliases to make queries more readable."
+    }
+  ]
+}

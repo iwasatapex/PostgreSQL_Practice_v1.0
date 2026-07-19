@@ -4,7 +4,7 @@ import psycopg2
 DB_SETTINGS = {
     "dbname": "postgres",
     "user": "postgres",
-    "password": "4m4teur",
+    "password": "yourpassword",
     "host": "localhost",
     "port": "5432"
 }

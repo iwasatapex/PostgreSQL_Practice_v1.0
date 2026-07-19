@@ -1,230 +1,280 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🗄️ Database Viewer</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Database Viewer - Fresh</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px 30px;
-            border-radius: 16px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-        }
-        .header h1 { font-size: 24px; display: flex; align-items: center; gap: 12px; }
-        .header .back-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-        .header .back-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        
-        .tables {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 15px 0;
-        }
-        .table-btn {
-            padding: 10px 20px;
-            background: #e2e8f0;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        .table-btn:hover { background: #cbd5e1; }
-        .table-btn.active {
-            background: #667eea;
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            margin-top: 15px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 14px;
-        }
-        th, td {
-            border: 1px solid #e2e8f0;
-            padding: 10px 14px;
-            text-align: left;
-        }
-        th {
-            background: #667eea;
-            color: white;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-        tr:nth-child(even) { background: #f8f9ff; }
-        tr:hover { background: #eef0ff; }
-        
-        .count {
-            color: #888;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #888;
-        }
-        .error {
-            color: #ef4444;
-            padding: 20px;
-            text-align: center;
-            background: #fef2f2;
-            border-radius: 8px;
-        }
-        
-        @media (max-width: 600px) {
-            .tables { flex-direction: column; }
-            .table-btn { width: 100%; text-align: center; }
-            th, td { padding: 6px 8px; font-size: 12px; }
-        }
+        body { font-family: Arial; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg,#667eea,#764ba2); padding:20px; border-radius:16px; color:white; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+        .btn { padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+        .btn-refresh { background:#10b981; color:white; }
+        .btn-reset { background:#ef4444; color:white; }
+        .btn-back { background:rgba(255,255,255,0.2); color:white; }
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; margin-bottom:20px; }
+        .stat-item { background:white; padding:15px; border-radius:12px; text-align:center; }
+        .stat-item .number { font-size:28px; font-weight:700; color:#667eea; }
+        .stat-item .label { font-size:12px; color:#888; }
+        .card { background:white; border-radius:16px; padding:20px; margin-bottom:20px; }
+        .table-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+        .table-tab { padding:8px 18px; background:#e2e8f0; border:none; border-radius:8px; cursor:pointer; }
+        .table-tab.active { background:#667eea; color:white; }
+        .table-container { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        th, td { border:1px solid #e2e8f0; padding:8px 12px; text-align:left; }
+        th { background:#667eea; color:white; cursor:pointer; }
+        tr:nth-child(even) { background:#f8f9ff; }
+        .loading { text-align:center; padding:30px; color:#888; }
+        .error { color:#ef4444; padding:20px; text-align:center; background:#fef2f2; border-radius:8px; }
+        .count { color:#888; font-size:14px; margin-top:10px; }
+        .pagination { display:flex; gap:6px; justify-content:center; margin-top:15px; flex-wrap:wrap; }
+        .pagination button { padding:4px 12px; border:1px solid #e2e8f0; border-radius:6px; background:white; cursor:pointer; }
+        .pagination button.active { background:#667eea; color:white; border-color:#667eea; }
+        .timestamp { color:#888; font-size:12px; margin-right:15px; }
+        .debug-info { background:#f8f9fa; border:1px solid #dee2e6; padding:10px; border-radius:8px; font-size:12px; margin-top:10px; display:none; }
+        .debug-info.show { display:block; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header">
         <h1>🗄️ Database Viewer</h1>
-        <a href="/" class="back-btn">🏠 Back to Portal</a>
+        <div>
+            <span class="timestamp" id="timestamp">Loading...</span>
+            <button class="btn btn-refresh" onclick="hardRefresh()">🔄 Refresh</button>
+            <button class="btn btn-reset" onclick="resetAll()">🗑️ Reset</button>
+            <a href="/" class="btn btn-back">🏠 Back</a>
+        </div>
     </div>
-    
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-item"><div class="number" id="totalTables">-</div><div class="label">Total Tables</div></div>
+        <div class="stat-item"><div class="number" id="totalRows">-</div><div class="label">Total Rows</div></div>
+        <div class="stat-item"><div class="number" id="dbSize">-</div><div class="label">Database Size</div></div>
+    </div>
+
     <div class="card">
-        <h3>📊 Tables</h3>
-        <div class="tables" id="tableList">
-            <div class="loading">Loading tables...</div>
-        </div>
+        <h3>📋 Tables</h3>
+        <div class="table-tabs" id="tableTabs"><div class="loading">Loading...</div></div>
+        <div id="debugInfo" class="debug-info"></div>
     </div>
-    
-    <div class="card" id="dataCard">
-        <div id="tableData">
-            <p style="color:#888; text-align:center; padding:30px;">Select a table to view data</p>
-        </div>
+
+    <div class="card" id="schemaCard" style="display:none;">
+        <h3>📐 Table Schema</h3>
+        <div class="schema-grid" id="schemaInfo" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+    </div>
+
+    <div class="card">
+        <div id="tableData"><p style="color:#888;text-align:center;padding:30px;">Select a table</p></div>
+        <div class="pagination" id="pagination"></div>
     </div>
 </div>
 
 <script>
+    // ============================================================
+    // FORCE CACHE CLEAR
+    // ============================================================
+    function resetAll() {
+        // Clear all browser storage
+        localStorage.clear();
+        sessionStorage.clear();
+        if (window.caches) {
+            caches.keys().then(function(names) {
+                for (let name of names) caches.delete(name);
+            });
+        }
+        // Reload with cache-bust
+        window.location.href = window.location.pathname + '?t=' + Date.now() + '&reset=1';
+    }
+
+    function hardRefresh() {
+        window.location.href = window.location.pathname + '?t=' + Date.now();
+    }
+
+    // Show timestamp
+    document.getElementById('timestamp').textContent = '🕐 ' + new Date().toLocaleString();
+
+    function fetchNoCache(url) {
+        return fetch(url + '?t=' + Date.now());
+    }
+
+    // ============================================================
+    // MAIN LOGIC
+    // ============================================================
     let currentTable = null;
-    
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    let rowsPerPage = 100;
+
     document.addEventListener('DOMContentLoaded', function() {
+        loadStats();
         loadTables();
     });
-    
-    function loadTables() {
-        fetch('/api/db/tables')
+
+    function loadStats() {
+        fetchNoCache('/api/db/stats')
             .then(r => r.json())
             .then(data => {
-                const container = document.getElementById('tableList');
-                if (data.error) {
-                    container.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                document.getElementById('totalTables').textContent = data.total_tables || 0;
+                document.getElementById('totalRows').textContent = data.total_rows || 0;
+                document.getElementById('dbSize').textContent = data.db_size || '0 MB';
+            })
+            .catch(() => {
+                document.getElementById('totalTables').textContent = '?';
+                document.getElementById('totalRows').textContent = '?';
+                document.getElementById('dbSize').textContent = '?';
+            });
+    }
+
+    function loadTables() {
+        const container = document.getElementById('tableTabs');
+        container.innerHTML = '<div class="loading">Loading...</div>';
+
+        fetchNoCache('/api/db/tables')
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { 
+                    container.innerHTML = `<div class="error">${data.error}</div>`;
                     return;
                 }
-                
                 if (!data.tables || data.tables.length === 0) {
-                    container.innerHTML = '<p style="color:#888;">No tables found. Generate a database first!</p>';
+                    container.innerHTML = '<div class="loading">No tables found. Generate a database.</div>';
                     return;
                 }
-                
+
+                // Debug: show raw table list
+                const debug = document.getElementById('debugInfo');
+                debug.innerHTML = `<strong>Tables returned (${data.tables.length}):</strong> ${data.tables.join(', ')}`;
+                debug.classList.add('show');
+
+                // Build tabs
                 container.innerHTML = '';
                 data.tables.forEach(table => {
                     const btn = document.createElement('button');
-                    btn.className = 'table-btn';
+                    btn.className = 'table-tab';
                     btn.textContent = table;
                     btn.onclick = function() {
-                        document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelectorAll('.table-tab').forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
                         loadTable(table);
+                        loadSchema(table);
                     };
                     container.appendChild(btn);
                 });
-            })
-            .catch(e => {
-                document.getElementById('tableList').innerHTML = `<p class="error">Error: ${e.message}</p>`;
-            });
-    }
-    
-    function loadTable(tableName) {
-        currentTable = tableName;
-        const container = document.getElementById('tableData');
-        container.innerHTML = '<div class="loading">Loading data...</div>';
-        
-        fetch(`/api/db/view/${tableName}`)
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) {
-                    container.innerHTML = `<div class="error">Error: ${data.error}</div>`;
-                    return;
+
+                // Auto-select first
+                if (data.tables.length > 0) {
+                    document.querySelector('.table-tab').click();
                 }
-                
-                if (!data.rows || data.rows.length === 0) {
-                    container.innerHTML = `<p style="color:#888;">No data in ${tableName}. Generate the database first!</p>`;
-                    return;
-                }
-                
-                let html = `<h3>📋 ${tableName}</h3>`;
-                html += `<div class="count">${data.count} rows</div>`;
-                html += `<div class="table-container"><table><thead><tr>`;
-                
-                const headers = Object.keys(data.rows[0]);
-                headers.forEach(h => html += `<th>${h}</th>`);
-                html += `</tr></thead><tbody>`;
-                
-                data.rows.forEach(row => {
-                    html += `<tr>`;
-                    headers.forEach(h => {
-                        const val = row[h];
-                        html += `<td>${val !== null ? val : 'NULL'}</td>`;
-                    });
-                    html += `</tr>`;
-                });
-                
-                html += `</tbody></table></div>`;
-                container.innerHTML = html;
             })
             .catch(e => {
                 container.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+                console.error('Tables fetch error:', e);
             });
+    }
+
+    function loadSchema(tableName) {
+        fetchNoCache(`/api/db/schema/${tableName}`)
+            .then(r => r.json())
+            .then(data => {
+                const card = document.getElementById('schemaCard');
+                const container = document.getElementById('schemaInfo');
+                if (data.error || !data.columns) { card.style.display = 'none'; return; }
+                card.style.display = 'block';
+                container.innerHTML = data.columns.map(col => {
+                    let badges = '';
+                    if (col.primary_key) badges += ' <span style="background:#d4edda;padding:2px 8px;border-radius:12px;font-size:10px;">PK</span>';
+                    if (col.foreign_key) badges += ' <span style="background:#fff3cd;padding:2px 8px;border-radius:12px;font-size:10px;">FK</span>';
+                    return `<div style="background:#f8f9ff;padding:8px 14px;border-radius:6px;border-left:3px solid #667eea;">
+                        <strong>${col.name}</strong> ${badges}
+                        <span style="color:#888;font-size:12px;">${col.data_type}</span>
+                    </div>`;
+                }).join('');
+            })
+            .catch(e => console.error('Schema error:', e));
+    }
+
+    function loadTable(tableName) {
+        currentTable = tableName;
+        const container = document.getElementById('tableData');
+        container.innerHTML = '<div class="loading">Loading...</div>';
+
+        fetchNoCache(`/api/db/view/${tableName}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { container.innerHTML = `<div class="error">${data.error}</div>`; return; }
+                if (!data.rows || data.rows.length === 0) { container.innerHTML = '<p style="color:#888;">No data</p>'; return; }
+                allData = data.rows;
+                filteredData = [...allData];
+                currentPage = 1;
+                renderTable();
+            })
+            .catch(e => container.innerHTML = `<div class="error">${e.message}</div>`);
+    }
+
+    function renderTable() {
+        const container = document.getElementById('tableData');
+        if (!filteredData || filteredData.length === 0) {
+            container.innerHTML = '<p style="color:#888;">No data</p>';
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        const start = (currentPage - 1) * rowsPerPage;
+        const pageData = filteredData.slice(start, start + rowsPerPage);
+
+        let html = `<div class="count">${filteredData.length} rows (Page ${currentPage} of ${totalPages})</div>`;
+        html += `<div class="table-container"><table><thead><tr>`;
+        const headers = Object.keys(pageData[0]);
+        headers.forEach(h => html += `<th onclick="sortData('${h}')">${h}</th>`);
+        html += `</tr></thead><tbody>`;
+        pageData.forEach(row => {
+            html += `<tr>`;
+            headers.forEach(h => {
+                const val = row[h];
+                html += `<td>${val !== null ? val : 'NULL'}</td>`;
+            });
+            html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+
+        // Pagination
+        const pag = document.getElementById('pagination');
+        if (totalPages > 1) {
+            let phtml = '';
+            phtml += `<button onclick="goToPage(1)" ${currentPage===1?'disabled':''}>First</button>`;
+            phtml += `<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀</button>`;
+            for (let i=Math.max(1,currentPage-2); i<=Math.min(totalPages,currentPage+2); i++) {
+                phtml += `<button onclick="goToPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+            }
+            phtml += `<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>▶</button>`;
+            phtml += `<button onclick="goToPage(${totalPages})" ${currentPage===totalPages?'disabled':''}>Last</button>`;
+            pag.innerHTML = phtml;
+        } else {
+            pag.innerHTML = '';
+        }
+    }
+
+    function sortData(col) {
+        filteredData.sort((a,b) => {
+            const va = a[col] || '';
+            const vb = b[col] || '';
+            return va > vb ? 1 : -1;
+        });
+        renderTable();
+    }
+
+    function goToPage(page) {
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        if (page<1 || page>totalPages) return;
+        currentPage = page;
+        renderTable();
     }
 </script>
 </body>

@@ -1,0 +1,61 @@
+============================================
+   HOW TO USE - SQL Workbook Generator
+============================================
+
+✅ FOR NORMAL USERS (EASIEST WAY):
+
+1. DOUBLE-CLICK on "start.py" or "launch_portal.sh"
+
+2. Wait 10-30 seconds (first time takes longer)
+
+3. Your browser will open automatically
+
+4. Start generating workbooks!
+
+============================================
+🔹 WHAT YOU SEE:
+
+📄 GENERATE WORKBOOK
+   → Pick a SQL file (ecommerce.sql, shop.sql, etc.)
+   → Type how many questions you want (100, 500, 1000)
+   → Click "Generate Workbook"
+   → Download your files!
+
+🎯 INTERACTIVE PRACTICE
+   → Choose how many questions per difficulty
+   → Click "Start Practice Session"
+   → Answer questions one by one
+   → Get instant feedback with scores!
+
+🗄️ GENERATE DATABASE
+   → Set rows per table (100, 1000, etc.)
+   → Click "Generate Practice Database"
+   → Start practicing with real data!
+
+📤 UPLOAD FILES
+   → Upload your own SQL or Python files
+   → Generate questions from your schema
+
+============================================
+🔹 WHAT YOU GET:
+
+📝 SQL_Workbook.docx    → Questions (printable)
+📄 ANSWERS.txt          → Full answers with explanations
+💾 Answers.sql          → All SQL queries
+
+============================================
+🔹 TROUBLESHOOTING:
+
+Q: Nothing happens when I double-click?
+A: Right-click → Properties → Permissions → 
+   Check "Allow executing as program"
+
+Q: Port is already in use?
+A: It will auto-find a free port, just wait.
+
+Q: PostgreSQL not found?
+A: Run: sudo apt install postgresql postgresql-contrib
+
+============================================
+   🚀 HAPPY LEARNING!
+============================================

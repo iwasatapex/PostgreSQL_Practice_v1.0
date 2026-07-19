@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Workbook Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #eef0ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .upload-text {
+            color: #555;
+            font-size: 16px;
+        }
+        
+        .upload-text strong {
+            color: #667eea;
+            cursor: pointer;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-info {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+        }
+        
+        .file-info.show {
+            display: block;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+            display: none;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 3px;
+            background: white;
+        }
+        
+        .feature-badge.has {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .feature-badge.has-not {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .download-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            min-width: 120px;
+        }
+        
+        .download-btn.sql {
+            background: #28a745;
+        }
+        
+        .download-btn.docx {
+            background: #007bff;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .error {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 SQL Workbook Generator</h1>
+        <p class="subtitle">Upload a SQL schema file to generate practice questions</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <span class="upload-icon">📄</span>
+            <div class="upload-text">
+                <strong>Click to upload</strong> or drag and drop<br>
+                <span style="font-size: 14px; color: #999;">.sql, .py, or .txt files only</span>
+            </div>
+            <input type="file" class="file-input" id="fileInput" accept=".sql,.txt,.py">
+            
+            <div class="file-info" id="fileInfo">
+                <span class="file-name" id="fileName">file.sql</span>
+                <span class="file-size" id="fileSize">(0 KB)</span>
+            </div>
+        </div>
+        
+        <button class="generate-btn" id="generateBtn">🚀 Generate Workbook</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your workbook...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="results" id="results">
+            <h3>✅ Generation Complete!</h3>
+            
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statTables">0</div>
+                    <div class="stat-label">Tables</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statRelationships">0</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statQuestions">0</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <strong>Features Detected:</strong><br>
+                <div id="featureBadges"></div>
+            </div>
+            
+            <div class="download-buttons">
+                <a href="#" class="download-btn sql" id="downloadSql">📊 Download SQL</a>
+                <a href="#" class="download-btn docx" id="downloadDocx">📝 Download DOCX</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const error = document.getElementById('error');
+        
+        let selectedFile = null;
+        
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // File selected
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileName.textContent = selectedFile.name;
+                fileSize.textContent = `(${(selectedFile.size / 1024).toFixed(1)} KB)`;
+                fileInfo.classList.add('show');
+                generateBtn.style.display = 'block';
+                generateBtn.disabled = false;
+                results.classList.remove('show');
+                error.classList.remove('show');
+            }
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                selectedFile = e.dataTransfer.files[0];
+                fileName.textContent = selectedFile.name;
+                fileSize.textContent = `(${(selectedFile.size / 1024).toFixed(1)} KB)`;
+                fileInfo.classList.add('show');
+                generateBtn.style.display = 'block';
+                generateBtn.disabled = false;
+                results.classList.remove('show');
+                error.classList.remove('show');
+            }
+        });
+        
+        // Generate
+        generateBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            generateBtn.disabled = true;
+            loading.classList.add('show');
+            results.classList.remove('show');
+            error.classList.remove('show');
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    error.textContent = '❌ ' + data.error;
+                    error.classList.add('show');
+                    return;
+                }
+                
+                // Show results
+                document.getElementById('statTables').textContent = data.tables;
+                document.getElementById('statRelationships').textContent = data.relationships;
+                document.getElementById('statQuestions').textContent = data.questions;
+                
+                // Features
+                const badges = document.getElementById('featureBadges');
+                badges.innerHTML = '';
+                const features = data.features;
+                const featureLabels = {
+                    'has_jsonb': 'JSONB',
+                    'has_timestamps': 'Timestamps',
+                    'has_recursive': 'Recursive',
+                    'has_joins': 'JOINs',
+                    'has_aggregates': 'Aggregates'
+                };
+                
+                for (const [key, label] of Object.entries(featureLabels)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'feature-badge ' + (features[key] ? 'has' : 'has-not');
+                    badge.textContent = (features[key] ? '✅ ' : '❌ ') + label;
+                    badges.appendChild(badge);
+                }
+                
+                // Download buttons
+                document.getElementById('downloadSql').href = '/download/sql/Answers.sql';
+                document.getElementById('downloadDocx').href = '/download/docx/SQL_Workbook.docx';
+                
+                results.classList.add('show');
+                
+            } catch (err) {
+                error.textContent = '❌ Error: ' + err.message;
+                error.classList.add('show');
+            } finally {
+                loading.classList.remove('show');
+                generateBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

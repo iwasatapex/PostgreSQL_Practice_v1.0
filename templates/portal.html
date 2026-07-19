@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Workbook Generator - Unified Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 40px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .navbar .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .navbar .status {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+        
+        .card-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .card-header .icon {
+            font-size: 28px;
+        }
+        
+        .card-body {
+            color: #555;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        /* Output Files */
+        .file-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 14px;
+        }
+        
+        .file-item:hover {
+            background: #f8f9ff;
+        }
+        
+        .file-item .file-name {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .file-item .file-size {
+            color: #888;
+            font-size: 12px;
+        }
+        
+        .file-item .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .file-item .file-actions .btn {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        
+        /* Output Log */
+        .output-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        
+        .output-log .success { color: #4ec9b0; }
+        .output-log .error { color: #f48771; }
+        .output-log .info { color: #9cdcfe; }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+        .toast.info { background: #17a2b8; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 20px; }
+            .navbar h1 { font-size: 20px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+            .card { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div>
+            <h1>🗄️ SQL Workbook Generator</h1>
+            <div class="subtitle">Unified Portal - Generate, Practice, Manage</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span class="status">🟢 System Ready</span>
+            <button class="btn btn-outline" onclick="refreshStatus()" style="color: white; border-color: white;">⟳ Refresh</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            
+            <!-- Card 1: Generate Workbook -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📄 Generate Workbook</h2>
+                    <span class="icon">⚡</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>SQL or Python File</label>
+                        <select id="genFile">
+                            <option value="examples/ecommerce.sql">examples/ecommerce.sql</option>
+                            <option value="examples/shop.sql">examples/shop.sql</option>
+                            <option value="examples/models.py">examples/models.py</option>
+                            <option value="__upload__">📤 Upload Custom File</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Questions</label>
+                        <input type="number" id="genCount" value="100" min="10" max="5000">
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="generateWorkbook()">
+                        🚀 Generate Workbook
+                    </button>
+                    <div class="loading" id="genLoading">
+                        <div class="spinner"></div>
+                        <p>Generating workbook... This may take a few moments.</p>
+                    </div>
+                    <div id="genOutput" class="output-log" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- Card 2: Interactive Practice -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🎯 Interactive Practice</h2>
+                    <span class="icon">📚</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Questions per Difficulty</label>
+                        <div class="form-row">
+                            <div>
+                                <label style="font-size: 12px;">⭐ Beginner</label>
+                                <input type="number" id="pracBeginner" value="3" min="0" max="20">
+                            </div>
+                            <div>
+                                <label style="font-size: 12px;">⭐⭐ Intermediate</label>
+                                <input type="number" id="pracIntermediate" value="3" min="0" max="20">
+                            </div>
+                            <div>
+                                <label style="font-size: 12px;">⭐⭐⭐ Advanced</label>
+                                <input type="number" id="pracAdvanced" value="2" min="0" max="20">
+                            </div>
+                            <div>
+                                <label style="font-size: 12px;">⭐⭐⭐⭐ Expert</label>
+                                <input type="number" id="pracExpert" value="2" min="0" max="20">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>SQL File</label>
+                        <select id="pracFile">
+                            <option value="examples/ecommerce.sql">examples/ecommerce.sql</option>
+                            <option value="examples/shop.sql">examples/shop.sql</option>
+                            <option value="examples/models.py">examples/models.py</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success btn-full" onclick="startPractice()">
+                        🎯 Start Practice Session
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Card 3: Database Generator -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🗄️ Generate Database</h2>
+                    <span class="icon">📊</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Rows per Table</label>
+                        <input type="number" id="dbRows" value="100" min="10" max="10000">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Tables</label>
+                        <input type="number" id="dbTables" value="5" min="1" max="10">
+                    </div>
+                    <button class="btn btn-warning btn-full" onclick="generateDatabase()">
+                        🗄️ Generate Practice Database
+                    </button>
+                    <div class="loading" id="dbLoading">
+                        <div class="spinner"></div>
+                        <p>Generating database with sample data...</p>
+                    </div>
+                    <div id="dbOutput" class="output-log" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- Card 4: Upload File -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📤 Upload File</h2>
+                    <span class="icon">📁</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Upload SQL or Python File</label>
+                        <input type="file" id="uploadFile" accept=".sql,.py,.txt" style="padding: 8px;">
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="uploadFile()">
+                        📤 Upload
+                    </button>
+                    <div id="uploadStatus" style="margin-top: 10px; font-size: 14px; color: #666;"></div>
+                </div>
+            </div>
+            
+            <!-- Card 5: Output Files -->
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-header">
+                    <h2>📂 Generated Files</h2>
+                    <span class="icon">📦</span>
+                    <div>
+                        <button class="btn btn-danger" onclick="clearOutput()" style="font-size: 12px; padding: 5px 15px;">
+                            🗑️ Clear All
+                        </button>
+                        <button class="btn btn-primary" onclick="refreshFiles()" style="font-size: 12px; padding: 5px 15px;">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="fileList" class="file-list">
+                        <p style="color: #999; text-align: center; padding: 20px;">No files generated yet. Generate a workbook to see files here.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // ============================================
+        // Toast Notification
+        // ============================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // ============================================
+        // Generate Workbook
+        // ============================================
+        async function generateWorkbook() {
+            const file = document.getElementById('genFile').value;
+            const count = document.getElementById('genCount').value;
+            
+            const loading = document.getElementById('genLoading');
+            const output = document.getElementById('genOutput');
+            
+            loading.classList.add('active');
+            output.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file_path: file,
+                        question_count: parseInt(count)
+                    })
+                });
+                
+                const data = await response.json();
+                loading.classList.remove('active');
+                
+                if (data.error) {
+                    showToast('❌ ' + data.error, 'error');
+                    output.style.display = 'block';
+                    output.innerHTML = `<span class="error">${data.error}</span>\n${data.output || ''}`;
+                    return;
+                }
+                
+                showToast(`✅ Generated ${data.question_count} questions!`, 'success');
+                
+                // Show output
+                if (data.output) {
+                    output.style.display = 'block';
+                    output.innerHTML = `<span class="success">✅ Generation Complete!</span>\n${data.output}`;
+                }
+                
+                // Refresh file list
+                refreshFiles();
+                
+            } catch (error) {
+                loading.classList.remove('active');
+                showToast('❌ Error: ' + error.message, 'error');
+                output.style.display = 'block';
+                output.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+        
+        // ============================================
+        // Start Practice
+        // ============================================
+        function startPractice() {
+            const beginner = document.getElementById('pracBeginner').value;
+            const intermediate = document.getElementById('pracIntermediate').value;
+            const advanced = document.getElementById('pracAdvanced').value;
+            const expert = document.getElementById('pracExpert').value;
+            
+            if (parseInt(beginner) + parseInt(intermediate) + parseInt(advanced) + parseInt(expert) === 0) {
+                showToast('Please select at least one question!', 'error');
+                return;
+            }
+            
+            // Open practice in new tab
+            const url = `/practice?beginner=${beginner}&intermediate=${intermediate}&advanced=${advanced}&expert=${expert}`;
+            window.open(url, '_blank');
+            showToast('🎯 Opening practice session...', 'success');
+        }
+        
+        // ============================================
+        // Generate Database
+        // ============================================
+        async function generateDatabase() {
+            const rows = document.getElementById('dbRows').value;
+            const tables = document.getElementById('dbTables').value;
+            
+            const loading = document.getElementById('dbLoading');
+            const output = document.getElementById('dbOutput');
+            
+            loading.classList.add('active');
+            output.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/database/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        rows: parseInt(rows),
+                        tables: parseInt(tables)
+                    })
+                });
+                
+                const data = await response.json();
+                loading.classList.remove('active');
+                
+                if (data.error) {
+                    showToast('❌ ' + data.error, 'error');
+                    output.style.display = 'block';
+                    output.innerHTML = `<span class="error">${data.error}</span>\n${data.output || ''}`;
+                    return;
+                }
+                
+                showToast('✅ Database generated successfully!', 'success');
+                output.style.display = 'block';
+                output.innerHTML = `<span class="success">✅ Database Generated!</span>\n${data.output}`;
+                
+            } catch (error) {
+                loading.classList.remove('active');
+                showToast('❌ Error: ' + error.message, 'error');
+                output.style.display = 'block';
+                output.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+        
+        // ============================================
+        // Upload File
+        // ============================================
+        async function uploadFile() {
+            const fileInput = document.getElementById('uploadFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showToast('Please select a file first!', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showToast('❌ ' + data.error, 'error');
+                    return;
+                }
+                
+                showToast('✅ ' + data.message, 'success');
+                document.getElementById('uploadStatus').textContent = '✅ ' + data.message;
+                document.getElementById('uploadStatus').style.color = '#28a745';
+                
+                // Add to file list
+                const select = document.getElementById('genFile');
+                const option = document.createElement('option');
+                option.value = data.path;
+                option.textContent = 'uploads/' + data.filename;
+                select.insertBefore(option, select.children[select.children.length - 1]);
+                select.value = data.path;
+                
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        // ============================================
+        // File Management
+        // ============================================
+        async function refreshFiles() {
+            try {
+                const response = await fetch('/api/files');
+                const data = await response.json();
+                
+                const container = document.getElementById('fileList');
+                
+                if (data.output.length === 0) {
+                    container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No files generated yet. Generate a workbook to see files here.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                data.output.forEach(filename => {
+                    const div = document.createElement('div');
+                    div.className = 'file-item';
+                    
+                    // Determine file type icon
+                    let icon = '📄';
+                    if (filename.endsWith('.docx')) icon = '📝';
+                    else if (filename.endsWith('.sql')) icon = '💾';
+                    else if (filename.endsWith('.txt')) icon = '📋';
+                    else if (filename.endsWith('.pdf')) icon = '📕';
+                    
+                    div.innerHTML = `
+                        <span class="file-name">${icon} ${filename}</span>
+                        <div class="file-actions">
+                            <button class="btn btn-primary" onclick="downloadFile('${filename}')" style="padding: 2px 10px; font-size: 11px;">⬇️</button>
+                            <button class="btn btn-danger" onclick="deleteFile('${filename}')" style="padding: 2px 10px; font-size: 11px;">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+                
+            } catch (error) {
+                console.error('Error refreshing files:', error);
+            }
+        }
+        
+        async function downloadFile(filename) {
+            window.open(`/api/download/${filename}`, '_blank');
+        }
+        
+        async function deleteFile(filename) {
+            if (!confirm(`Delete ${filename}?`)) return;
+            
+            try {
+                const response = await fetch(`/api/delete/${filename}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('✅ ' + data.message, 'success');
+                    refreshFiles();
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function clearOutput() {
+            if (!confirm('Delete all generated files?')) return;
+            
+            try {
+                const response = await fetch('/api/clear_output', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('✅ ' + data.message, 'success');
+                    refreshFiles();
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        // ============================================
+        // System Status
+        // ============================================
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                showToast(`🟢 System ready - ${data.output_files} files available`, 'info');
+            } catch (error) {
+                showToast('❌ Error checking status', 'error');
+            }
+        }
+        
+        // ============================================
+        // File upload handler
+        // ============================================
+        document.getElementById('genFile').addEventListener('change', function() {
+            if (this.value === '__upload__') {
+                document.getElementById('uploadFile').click();
+            }
+        });
+        
+        document.getElementById('uploadFile').addEventListener('change', function() {
+            if (this.files.length > 0) {
+                uploadFile();
+            }
+        });
+        
+        // ============================================
+        // Initialize
+        // ============================================
+        refreshFiles();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshFiles, 30000);
+    </script>
+</body>
+</html>

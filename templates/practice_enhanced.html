@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive SQL Practice - Enhanced</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Setup Screen */
+        .setup-screen {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .setup-screen h1 { font-size: 32px; color: #333; margin-bottom: 10px; }
+        .setup-screen .subtitle { color: #666; margin-bottom: 30px; }
+        
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .difficulty-card {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .difficulty-card:hover { border-color: #667eea; }
+        .difficulty-card label { display: block; font-weight: 600; font-size: 16px; margin-bottom: 10px; color: #333; }
+        .difficulty-card .stars { font-size: 20px; margin-bottom: 10px; }
+        .difficulty-card input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .difficulty-card input:focus { border-color: #667eea; outline: none; }
+        .difficulty-card .desc { font-size: 12px; color: #888; margin-top: 8px; }
+        
+        .file-input-group { margin: 20px 0; }
+        .file-input-group label { font-weight: 600; display: block; margin-bottom: 5px; color: #333; }
+        .file-input-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+        
+        /* Practice Screen */
+        .practice-screen { display: none; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .practice-screen.active { display: block; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .question-counter { font-size: 18px; font-weight: 600; color: #333; }
+        
+        .stats-badge { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .stat-item .number { font-size: 24px; font-weight: 700; color: #667eea; }
+        .stat-item .label { font-size: 12px; color: #888; }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .question-box {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .question-box .topic {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .question-box .difficulty {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .difficulty-beginner { background: #d4edda; color: #155724; }
+        .difficulty-intermediate { background: #fff3cd; color: #856404; }
+        .difficulty-advanced { background: #f8d7da; color: #721c24; }
+        .difficulty-expert { background: #d1ecf1; color: #0c5460; }
+        
+        .question-text { font-size: 18px; line-height: 1.6; color: #333; margin: 10px 0; }
+        
+        .answer-area { margin: 20px 0; }
+        .answer-area textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            min-height: 120px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .answer-area textarea:focus { border-color: #667eea; outline: none; }
+        
+        .button-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4); }
+        
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4); }
+        
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4); }
+        
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4); }
+        .btn-warning:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* Feedback */
+        .feedback {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; border: 2px solid #28a745; }
+        .feedback.incorrect { background: #f8d7da; border: 2px solid #dc3545; }
+        .feedback.partial { background: #fff3cd; border: 2px solid #ffc107; }
+        
+        .feedback h3 { margin-bottom: 10px; }
+        .feedback .score-display { font-size: 28px; font-weight: 700; margin: 10px 0; }
+        .feedback .score-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
+        .feedback .score-item { background: white; padding: 10px; border-radius: 8px; text-align: center; }
+        .feedback .score-item .label { font-size: 12px; color: #888; }
+        .feedback .score-item .value { font-size: 18px; font-weight: 700; color: #667eea; }
+        .feedback .score-item .value.green { color: #28a745; }
+        .feedback .score-item .value.red { color: #dc3545; }
+        .feedback .score-item .value.gold { color: #ffc107; }
+        
+        .feedback .correct-answer { font-family: 'Courier New', monospace; background: white; padding: 10px; border-radius: 6px; margin: 10px 0; }
+        .feedback .explanation { margin: 10px 0; color: #333; }
+        .feedback .tip { margin: 10px 0; font-style: italic; color: #666; }
+        .feedback .feedback-list { list-style: none; padding: 0; margin: 10px 0; }
+        .feedback .feedback-list li { padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        
+        /* Alternatives */
+        .alternatives-toggle {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 10px;
+            margin: 10px 0;
+            text-decoration: underline;
+        }
+        .alternatives-toggle:hover { color: #764ba2; }
+        
+        .alternatives {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+        }
+        .alternatives.show { display: block; }
+        
+        .alternative-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        .alternative-item .alt-type { font-weight: 700; color: #667eea; }
+        .alternative-item .alt-query { font-family: 'Courier New', monospace; background: #f5f5f5; padding: 10px; border-radius: 4px; margin: 5px 0; font-size: 14px; overflow-x: auto; }
+        .alternative-item .alt-desc { color: #666; font-size: 14px; }
+        
+        /* Results */
+        .results-screen { display: none; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .results-screen.active { display: block; }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .result-card { background: #f8f9ff; padding: 20px; border-radius: 12px; text-align: center; }
+        .result-card .big-number { font-size: 36px; font-weight: 700; color: #667eea; }
+        .result-card .big-number.green { color: #28a745; }
+        .result-card .big-number.red { color: #dc3545; }
+        .result-card .big-number.gold { color: #ffc107; }
+        .result-card .label { font-size: 14px; color: #888; margin-top: 5px; }
+        
+        .result-list { max-height: 400px; overflow-y: auto; margin: 20px 0; }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .result-item.correct { background: #f0fff4; }
+        .result-item.incorrect { background: #fff5f5; }
+        .result-item.partial { background: #fffbeb; }
+        .result-item .status { font-size: 20px; }
+        .result-item .q-text { flex: 1; margin: 0 15px; font-size: 14px; }
+        
+        .hidden { display: none !important; }
+        
+        @media (max-width: 600px) {
+            .setup-screen, .practice-screen, .results-screen { padding: 20px; }
+            .difficulty-grid { grid-template-columns: 1fr 1fr; }
+            .header { flex-direction: column; align-items: stretch; }
+            .button-group { flex-direction: column; }
+            .btn { width: 100%; }
+            .feedback .score-details { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Setup Screen -->
+        <div class="setup-screen" id="setupScreen">
+            <h1>📚 SQL Practice</h1>
+            <p class="subtitle">Choose how many questions you want from each difficulty level</p>
+            
+            <div class="difficulty-grid">
+                <div class="difficulty-card">
+                    <label>⭐ Beginner</label>
+                    <div class="stars">⭐</div>
+                    <input type="number" id="beginnerCount" value="3" min="0" max="20">
+                    <div class="desc">Basic SELECT, WHERE, ORDER BY</div>
+                </div>
+                <div class="difficulty-card">
+                    <label>⭐⭐ Intermediate</label>
+                    <div class="stars">⭐⭐</div>
+                    <input type="number" id="intermediateCount" value="3" min="0" max="20">
+                    <div class="desc">JOINs, GROUP BY, Aggregations</div>
+                </div>
+                <div class="difficulty-card">
+                    <label>⭐⭐⭐ Advanced</label>
+                    <div class="stars">⭐⭐⭐</div>
+                    <input type="number" id="advancedCount" value="2" min="0" max="20">
+                    <div class="desc">Window Functions, CTEs, CASE</div>
+                </div>
+                <div class="difficulty-card">
+                    <label>⭐⭐⭐⭐ Expert</label>
+                    <div class="stars">⭐⭐⭐⭐</div>
+                    <input type="number" id="expertCount" value="2" min="0" max="20">
+                    <div class="desc">JSONB, Recursive CTEs, Performance</div>
+                </div>
+            </div>
+            
+            <div class="file-input-group">
+                <label>📂 SQL or Python File</label>
+                <input type="text" id="filePath" value="examples/ecommerce.sql" placeholder="Path to SQL or Python file">
+            </div>
+            
+            <button class="start-btn" onclick="startPractice()">🚀 Start Practice</button>
+        </div>
+        
+        <!-- Practice Screen -->
+        <div class="practice-screen" id="practiceScreen">
+            <div class="header">
+                <div class="question-counter" id="questionCounter">Question 1 of 10</div>
+                <div class="stats-badge">
+                    <div class="stat-item">
+                        <div class="number" id="scoreDisplay">0</div>
+                        <div class="label">Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="number" id="answeredDisplay">0</div>
+                        <div class="label">Answered</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="number" id="accuracyDisplay">0%</div>
+                        <div class="label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            
+            <div class="question-box">
+                <div>
+                    <span class="topic" id="questionTopic">Topic</span>
+                    <span class="difficulty" id="questionDifficulty">Difficulty</span>
+                </div>
+                <div class="question-text" id="questionText">Loading question...</div>
+            </div>
+            
+            <div class="answer-area">
+                <textarea id="answerInput" placeholder="Write your SQL query here..."></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-success" id="submitBtn" onclick="submitAnswer()">📤 Submit Answer</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>➡️ Next Question</button>
+                <button class="btn btn-secondary" onclick="skipQuestion()">⏭️ Skip</button>
+                <button class="btn btn-danger" onclick="resetSession()">🔄 Reset</button>
+            </div>
+            
+            <div class="feedback" id="feedback">
+                <h3 id="feedbackTitle"></h3>
+                <div class="score-display" id="scoreDisplayFeedback"></div>
+                <div class="score-details" id="scoreDetails"></div>
+                <div class="correct-answer" id="correctAnswer"></div>
+                <div class="explanation" id="feedbackExplanation"></div>
+                <div class="tip" id="feedbackTip"></div>
+                <ul class="feedback-list" id="feedbackList"></ul>
+            </div>
+            
+            <button class="alternatives-toggle" id="alternativesToggle" onclick="toggleAlternatives()">📚 Show Alternative Answers</button>
+            <div class="alternatives" id="alternatives"></div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="results-screen" id="resultsScreen">
+            <h2>🎉 Practice Complete!</h2>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="big-number" id="resultTotal">0</div>
+                    <div class="label">Total Questions</div>
+                </div>
+                <div class="result-card">
+                    <div class="big-number green" id="resultCorrect">0</div>
+                    <div class="label">Correct</div>
+                </div>
+                <div class="result-card">
+                    <div class="big-number red" id="resultIncorrect">0</div>
+                    <div class="label">Incorrect</div>
+                </div>
+                <div class="result-card">
+                    <div class="big-number gold" id="resultAccuracy">0%</div>
+                    <div class="label">Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="result-list" id="resultList"></div>
+            
+            <button class="btn btn-primary" onclick="resetPractice()">🔄 Practice Again</button>
+            <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
+        </div>
+    </div>
+    
+    <script>
+        let sessionId = null;
+        let currentQuestion = null;
+        let isAnswered = false;
+        let currentResult = null;
+        
+        function startPractice() {
+            const beginner = parseInt(document.getElementById('beginnerCount').value) || 0;
+            const intermediate = parseInt(document.getElementById('intermediateCount').value) || 0;
+            const advanced = parseInt(document.getElementById('advancedCount').value) || 0;
+            const expert = parseInt(document.getElementById('expertCount').value) || 0;
+            const filePath = document.getElementById('filePath').value || 'examples/ecommerce.sql';
+            
+            if (beginner + intermediate + advanced + expert === 0) {
+                alert('Please select at least one question!');
+                return;
+            }
+            
+            fetch('/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    file_path: filePath,
+                    beginner_count: beginner,
+                    intermediate_count: intermediate,
+                    advanced_count: advanced,
+                    expert_count: expert
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                sessionId = data.session_id;
+                showQuestion(data.question);
+                document.getElementById('setupScreen').style.display = 'none';
+                document.getElementById('practiceScreen').classList.add('active');
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('submitBtn').disabled = false;
+            })
+            .catch(error => {
+                alert('Error starting practice: ' + error);
+            });
+        }
+        
+        function showQuestion(question) {
+            currentQuestion = question;
+            isAnswered = false;
+            currentResult = null;
+            
+            document.getElementById('questionCounter').textContent = `Question ${question.id} of ${question.total}`;
+            document.getElementById('questionTopic').textContent = question.topic;
+            document.getElementById('questionDifficulty').textContent = question.difficulty;
+            document.getElementById('questionDifficulty').className = 'difficulty difficulty-' + question.difficulty.toLowerCase();
+            document.getElementById('questionText').textContent = question.question;
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').style.borderColor = '#ddd';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('alternatives').className = 'alternatives';
+            document.getElementById('alternativesToggle').style.display = 'inline-block';
+            
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('nextBtn').disabled = true;
+            
+            // Update stats
+            document.getElementById('scoreDisplay').textContent = question.progress.score || 0;
+            document.getElementById('answeredDisplay').textContent = question.progress.answered || 0;
+            const accuracy = question.progress.answered > 0 ? 
+                Math.round((question.progress.score / question.progress.answered) * 100) : 0;
+            document.getElementById('accuracyDisplay').textContent = accuracy + '%';
+            
+            // Update progress bar
+            const progress = question.progress.answered / question.total * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function submitAnswer() {
+            if (isAnswered) {
+                alert('You already answered this question! Click Next Question to continue.');
+                return;
+            }
+            
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) {
+                alert('Please write your SQL query first!');
+                return;
+            }
+            
+            document.getElementById('submitBtn').disabled = true;
+            
+            fetch(`/answer/${sessionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer: answer })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                isAnswered = true;
+                currentResult = data.result;
+                const scores = data.result.scores;
+                
+                // Show feedback
+                const feedback = document.getElementById('feedback');
+                feedback.style.display = 'block';
+                
+                if (scores.is_correct && scores.total_score >= 90) {
+                    feedback.className = 'feedback show correct';
+                    document.getElementById('feedbackTitle').textContent = '🌟 Excellent! Perfect solution!';
+                } else if (scores.is_correct && scores.total_score >= 70) {
+                    feedback.className = 'feedback show correct';
+                    document.getElementById('feedbackTitle').textContent = '✅ Correct! Good job!';
+                } else if (scores.total_score >= 50) {
+                    feedback.className = 'feedback show partial';
+                    document.getElementById('feedbackTitle').textContent = '⚠️ Partial Credit - Close!';
+                } else {
+                    feedback.className = 'feedback show incorrect';
+                    document.getElementById('feedbackTitle').textContent = '❌ Needs Improvement';
+                }
+                
+                // Show score
+                document.getElementById('scoreDisplayFeedback').textContent = `Score: ${scores.total_score}/100`;
+                document.getElementById('scoreDisplayFeedback').style.color = 
+                    scores.total_score >= 70 ? '#28a745' : scores.total_score >= 50 ? '#ffc107' : '#dc3545';
+                
+                // Show score details
+                const details = document.getElementById('scoreDetails');
+                details.innerHTML = `
+                    <div class="score-item">
+                        <div class="value ${scores.syntax_score >= 30 ? 'green' : 'red'}">${scores.syntax_score}/40</div>
+                        <div class="label">Syntax</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="value ${scores.grammar_score >= 20 ? 'green' : 'red'}">${scores.grammar_score}/30</div>
+                        <div class="label">Grammar</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="value ${scores.keyword_score >= 15 ? 'green' : 'red'}">${scores.keyword_score}/20</div>
+                        <div class="label">Keywords</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="value ${scores.structure_score >= 7 ? 'green' : 'red'}">${scores.structure_score}/10</div>
+                        <div class="label">Structure</div>
+                    </div>
+                `;
+                
+                // Show correct answer
+                document.getElementById('correctAnswer').innerHTML = `<strong>Correct Answer:</strong><br>${data.result.scores.is_correct ? '' : currentQuestion.correct_answer}`;
+                
+                // Show explanation
+                document.getElementById('feedbackExplanation').textContent = `📖 ${currentQuestion.explanation}`;
+                document.getElementById('feedbackTip').textContent = `💡 ${currentQuestion.tip}`;
+                
+                // Show feedback list
+                const list = document.getElementById('feedbackList');
+                list.innerHTML = '';
+                scores.feedback.forEach(msg => {
+                    const li = document.createElement('li');
+                    li.textContent = msg;
+                    list.appendChild(li);
+                });
+                
+                // Update stats
+                document.getElementById('scoreDisplay').textContent = data.result.score;
+                document.getElementById('answeredDisplay').textContent = data.result.answered;
+                const accuracy = data.result.answered > 0 ? Math.round((data.result.score / data.result.answered) * 100) : 0;
+                document.getElementById('accuracyDisplay').textContent = accuracy + '%';
+                document.getElementById('progressBar').style.width = (data.result.answered / data.result.total * 100) + '%';
+                
+                // Enable next button
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('submitBtn').disabled = true;
+                
+                // Show alternatives
+                if (currentQuestion.alternatives && currentQuestion.alternatives.length > 0) {
+                    showAlternatives(currentQuestion.alternatives);
+                }
+            })
+            .catch(error => {
+                alert('Error submitting answer: ' + error);
+                document.getElementById('submitBtn').disabled = false;
+            });
+        }
+        
+        function showAlternatives(alternatives) {
+            const container = document.getElementById('alternatives');
+            container.innerHTML = '<h4>📚 Alternative Solutions</h4>';
+            
+            alternatives.forEach((alt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'alternative-item';
+                div.innerHTML = `
+                    <div class="alt-type">${alt.type} ${idx + 1}</div>
+                    <div class="alt-desc">${alt.description}</div>
+                    <div class="alt-query">${alt.query}</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('alternativesToggle').style.display = 'inline-block';
+        }
+        
+        function toggleAlternatives() {
+            const container = document.getElementById('alternatives');
+            container.classList.toggle('show');
+            const btn = document.getElementById('alternativesToggle');
+            btn.textContent = container.classList.contains('show') ? '📚 Hide Alternative Answers' : '📚 Show Alternative Answers';
+        }
+        
+        function nextQuestion() {
+            if (!isAnswered) {
+                alert('Please answer the question first!');
+                return;
+            }
+            
+            document.getElementById('nextBtn').disabled = true;
+            
+            fetch(`/next/${sessionId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                if (data.complete) {
+                    showResults();
+                } else if (data.question) {
+                    showQuestion(data.question);
+                    document.getElementById('feedback').style.display = 'none';
+                    document.getElementById('alternatives').className = 'alternatives';
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+                document.getElementById('nextBtn').disabled = false;
+            });
+        }
+        
+        function skipQuestion() {
+            if (!isAnswered) {
+                if (!confirm('Skip this question without answering?')) return;
+            }
+            
+            // Skip by submitting empty answer
+            fetch(`/answer/${sessionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer: 'SKIPPED' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                isAnswered = true;
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('submitBtn').disabled = true;
+                
+                // Update stats
+                document.getElementById('answeredDisplay').textContent = data.result.answered;
+                document.getElementById('progressBar').style.width = (data.result.answered / data.result.total * 100) + '%';
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+        
+        function resetSession() {
+            if (!confirm('Reset your progress?')) return;
+            
+            fetch(`/reset/${sessionId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                showQuestion(data.question);
+                document.getElementById('feedback').style.display = 'none';
+                document.getElementById('alternatives').className = 'alternatives';
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('submitBtn').disabled = false;
+            })
+            .catch(error => {
+                alert('Error resetting: ' + error);
+            });
+        }
+        
+        function showResults() {
+            fetch(`/stats/${sessionId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('practiceScreen').classList.remove('active');
+                document.getElementById('resultsScreen').classList.add('active');
+                
+                document.getElementById('resultTotal').textContent = data.total_questions;
+                document.getElementById('resultCorrect').textContent = data.score;
+                document.getElementById('resultIncorrect').textContent = data.answered - data.score;
+                document.getElementById('resultAccuracy').textContent = data.accuracy;
+                
+                // Show detailed results
+                const list = document.getElementById('resultList');
+                list.innerHTML = '';
+                data.results.forEach((r, i) => {
+                    const div = document.createElement('div');
+                    const isCorrect = r.scores && r.scores.is_correct;
+                    const isPartial = r.scores && r.scores.total_score >= 50 && !isCorrect;
+                    div.className = 'result-item ' + (isCorrect ? 'correct' : isPartial ? 'partial' : 'incorrect');
+                    div.innerHTML = `
+                        <span class="status">${isCorrect ? '✅' : isPartial ? '⚠️' : '❌'}</span>
+                        <span class="q-text">Q${i+1}: ${r.question.substring(0, 60)}${r.question.length > 60 ? '...' : ''}</span>
+                        <span>${r.scores ? r.scores.total_score + '%' : '0%'}</span>
+                        <span>${r.difficulty}</span>
+                    `;
+                    list.appendChild(div);
+                });
+            })
+            .catch(error => {
+                alert('Error loading results: ' + error);
+            });
+        }
+        
+        function resetPractice() {
+            document.getElementById('resultsScreen').classList.remove('active');
+            document.getElementById('setupScreen').style.display = 'block';
+            document.getElementById('practiceScreen').classList.remove('active');
+            sessionId = null;
+        }
+        
+        function goHome() {
+            resetPractice();
+        }
+        
+        // Enter key with Ctrl to submit answer
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                if (!document.getElementById('submitBtn').disabled) {
+                    submitAnswer();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

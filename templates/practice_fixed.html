@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SQL Practice</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 20px 0; }
+        .btn { padding: 10px 25px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 5px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn:hover { opacity: 0.8; }
+        .question-box { background: #f8f9ff; padding: 20px; border-radius: 8px; margin: 15px 0; }
+        textarea { width: 100%; min-height: 100px; font-family: monospace; padding: 10px; border: 2px solid #ddd; border-radius: 6px; }
+        .feedback { padding: 15px; border-radius: 6px; margin: 15px 0; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; border: 1px solid #28a745; }
+        .feedback.incorrect { background: #f8d7da; border: 1px solid #dc3545; }
+        .stats { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat { background: #f8f9fa; padding: 10px 20px; border-radius: 6px; }
+        .stat .number { font-size: 24px; font-weight: bold; }
+        .hint-box { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 6px; margin: 10px 0; display: none; }
+        .hint-box.show { display: block; }
+        .session-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .session-list { max-height: 300px; overflow-y: auto; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="card" id="setupScreen">
+        <h1>📚 SQL Practice</h1>
+        <p>Infinite practice with save & resume!</p>
+        
+        <div style="margin: 20px 0;">
+            <label>Your Name</label>
+            <input type="text" id="userName" value="Anonymous" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:6px;">
+        </div>
+        
+        <button class="btn btn-primary" onclick="startNew()">🚀 Start New Practice</button>
+        <button class="btn btn-success" onclick="showSessions()">📂 Resume Session</button>
+        
+        <div id="sessionList" class="hidden" style="margin-top:20px;">
+            <h3>📂 Your Saved Sessions</h3>
+            <div class="session-list" id="sessionsContainer">
+                <p style="color:#999;">No saved sessions</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card hidden" id="practiceScreen">
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
+            <h2>📚 SQL Practice</h2>
+            <div>
+                <button class="btn btn-warning" onclick="saveAndClose()">💾 Save & Close</button>
+                <button class="btn btn-secondary" onclick="showStats()">📊 Stats</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat"><div class="number" id="scoreDisplay">0</div><div>Score</div></div>
+            <div class="stat"><div class="number" id="answeredDisplay">0</div><div>Answered</div></div>
+            <div class="stat"><div class="number" id="accuracyDisplay">0%</div><div>Accuracy</div></div>
+            <div class="stat"><div class="number" id="hintsDisplay">0</div><div>Hints</div></div>
+        </div>
+        
+        <div class="question-box">
+            <div><span id="questionTopic" style="background:#667eea;color:white;padding:2px 10px;border-radius:10px;">Topic</span>
+            <span id="questionDifficulty" style="padding:2px 10px;border-radius:10px;background:#d4edda;color:#155724;">Difficulty</span></div>
+            <h3 id="questionText">Loading...</h3>
+        </div>
+        
+        <div class="hint-box" id="hintBox">
+            <strong>💡 Hint:</strong> <span id="hintText"></span>
+            <div style="color:#dc3545;font-size:14px;">⚠️ -20 points penalty</div>
+        </div>
+        
+        <textarea id="answerInput" placeholder="Write your SQL query here..."></textarea>
+        
+        <div>
+            <button class="btn btn-success" id="submitBtn" onclick="submitAnswer()">📤 Submit</button>
+            <button class="btn btn-primary hidden" id="nextBtn" onclick="nextQuestion()">➡️ Next</button>
+            <button class="btn btn-warning" id="hintBtn" onclick="getHint()">💡 Hint (-20)</button>
+            <button class="btn btn-secondary" onclick="skipQuestion()">⏭️ Skip</button>
+        </div>
+        
+        <div class="feedback" id="feedback">
+            <h3 id="feedbackTitle"></h3>
+            <div id="feedbackScore"></div>
+            <div id="feedbackList"></div>
+        </div>
+    </div>
+    
+    <div class="card hidden" id="statsScreen">
+        <h2>📊 Statistics</h2>
+        <div id="statsContent"></div>
+        <button class="btn btn-primary" onclick="closeStats()">Back</button>
+    </div>
+    
+    <script>
+        let sessionId = null;
+        let answered = false;
+        
+        function startNew() {
+            const name = document.getElementById('userName').value || 'Anonymous';
+            
+            fetch('/api/practice/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_name: name})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                sessionId = data.session_id;
+                document.getElementById('setupScreen').classList.add('hidden');
+                document.getElementById('practiceScreen').classList.remove('hidden');
+                loadQuestion();
+            });
+        }
+        
+        function showSessions() {
+            fetch('/api/practice/sessions')
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('sessionsContainer');
+                const list = document.getElementById('sessionList');
+                list.classList.remove('hidden');
+                
+                if (!data.sessions || data.sessions.length === 0) {
+                    container.innerHTML = '<p style="color:#999;">No saved sessions</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                data.sessions.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = 'session-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${s.user_name}</strong><br>
+                            <small>${s.answered_questions}/${s.total_questions} | ${s.correct_answers} correct | ${s.total_hints_used || 0} hints</small><br>
+                            <small>${new Date(s.last_updated).toLocaleString()}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="resume('${s.session_id}')" style="padding:5px 15px;font-size:12px;">Resume</button>
+                            <button class="btn btn-danger" onclick="deleteSession('${s.session_id}')" style="padding:5px 15px;font-size:12px;">Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+        
+        function resume(sid) {
+            fetch('/api/practice/resume', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({session_id: sid})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                sessionId = sid;
+                document.getElementById('setupScreen').classList.add('hidden');
+                document.getElementById('practiceScreen').classList.remove('hidden');
+                document.getElementById('sessionList').classList.add('hidden');
+                loadQuestion();
+            });
+        }
+        
+        function deleteSession(sid) {
+            if (!confirm('Delete this session?')) return;
+            fetch('/api/practice/delete/' + sid, {method: 'DELETE'})
+            .then(() => showSessions());
+        }
+        
+        function saveAndClose() {
+            if (!sessionId) return;
+            fetch('/api/practice/save/' + sessionId, {method: 'POST'})
+            .then(() => {
+                alert('✅ Session saved!');
+                document.getElementById('practiceScreen').classList.add('hidden');
+                document.getElementById('setupScreen').classList.remove('hidden');
+                sessionId = null;
+            });
+        }
+        
+        function loadQuestion() {
+            fetch('/api/practice/question/' + sessionId)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                const q = data.question;
+                document.getElementById('questionText').textContent = q.question;
+                document.getElementById('questionTopic').textContent = q.topic;
+                document.getElementById('questionDifficulty').textContent = q.difficulty;
+                document.getElementById('answerInput').value = '';
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('hintBox').className = 'hint-box';
+                document.getElementById('submitBtn').classList.remove('hidden');
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('hintBtn').disabled = false;
+                answered = false;
+                updateStats(data.stats);
+            });
+        }
+        
+        function getHint() {
+            if (answered) { alert('Already answered!'); return; }
+            fetch('/api/practice/hint/' + sessionId)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                document.getElementById('hintBox').className = 'hint-box show';
+                document.getElementById('hintText').textContent = data.hint;
+                document.getElementById('hintBtn').disabled = true;
+                alert('💡 Hint shown! -20 points penalty!');
+            });
+        }
+        
+        function submitAnswer() {
+            if (answered) { alert('Already answered! Click Next.'); return; }
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) { alert('Write your SQL query!'); return; }
+            
+            fetch('/api/practice/answer/' + sessionId, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({answer: answer})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                answered = true;
+                const grade = data.grade;
+                
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback show';
+                
+                if (grade.is_correct && grade.total_score >= 80) {
+                    feedback.className += ' correct';
+                    document.getElementById('feedbackTitle').textContent = '✅ Correct!';
+                } else if (grade.is_correct) {
+                    feedback.className += ' correct';
+                    document.getElementById('feedbackTitle').textContent = '✅ Correct (Hint penalty applied)';
+                } else {
+                    feedback.className += ' incorrect';
+                    document.getElementById('feedbackTitle').textContent = '❌ Incorrect';
+                }
+                
+                document.getElementById('feedbackScore').textContent = `Score: ${grade.total_score}/100`;
+                document.getElementById('feedbackList').innerHTML = grade.feedback.map(f => `<li>${f}</li>`).join('');
+                
+                document.getElementById('submitBtn').classList.add('hidden');
+                document.getElementById('nextBtn').classList.remove('hidden');
+                document.getElementById('hintBtn').disabled = true;
+                updateStats(data.stats);
+            });
+        }
+        
+        function nextQuestion() {
+            if (!answered) { alert('Answer first!'); return; }
+            fetch('/api/practice/next/' + sessionId, {method: 'POST'})
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                const q = data.question;
+                document.getElementById('questionText').textContent = q.question;
+                document.getElementById('questionTopic').textContent = q.topic;
+                document.getElementById('questionDifficulty').textContent = q.difficulty;
+                document.getElementById('answerInput').value = '';
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('hintBox').className = 'hint-box';
+                document.getElementById('submitBtn').classList.remove('hidden');
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('hintBtn').disabled = false;
+                answered = false;
+                updateStats(data.stats);
+            });
+        }
+        
+        function skipQuestion() {
+            if (!answered && !confirm('Skip without answering?')) return;
+            fetch('/api/practice/skip/' + sessionId, {method: 'POST'})
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert(data.error); return; }
+                const q = data.question;
+                document.getElementById('questionText').textContent = q.question;
+                document.getElementById('questionTopic').textContent = q.topic;
+                document.getElementById('questionDifficulty').textContent = q.difficulty;
+                document.getElementById('answerInput').value = '';
+                document.getElementById('feedback').className = 'feedback';
+                document.getElementById('hintBox').className = 'hint-box';
+                document.getElementById('submitBtn').classList.remove('hidden');
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('hintBtn').disabled = false;
+                answered = false;
+                updateStats(data.stats);
+            });
+        }
+        
+        function updateStats(stats) {
+            if (!stats) return;
+            document.getElementById('scoreDisplay').textContent = stats.correct || 0;
+            document.getElementById('answeredDisplay').textContent = stats.answered || 0;
+            document.getElementById('accuracyDisplay').textContent = stats.accuracy || '0%';
+            document.getElementById('hintsDisplay').textContent = stats.total_hints_used || 0;
+        }
+        
+        function showStats() {
+            fetch('/api/practice/stats/' + sessionId)
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('practiceScreen').classList.add('hidden');
+                document.getElementById('statsScreen').classList.remove('hidden');
+                document.getElementById('statsContent').innerHTML = `
+                    <div class="stats">
+                        <div class="stat"><div class="number">${data.answered}</div><div>Answered</div></div>
+                        <div class="stat"><div class="number">${data.correct}</div><div>Correct</div></div>
+                        <div class="stat"><div class="number">${data.accuracy}</div><div>Accuracy</div></div>
+                        <div class="stat"><div class="number">${data.total_hints_used || 0}</div><div>Hints Used</div></div>
+                    </div>
+                    <p><strong>User:</strong> ${data.user_name}</p>
+                    <p><strong>Started:</strong> ${new Date(data.start_time).toLocaleString()}</p>
+                `;
+            });
+        }
+        
+        function closeStats() {
+            document.getElementById('statsScreen').classList.add('hidden');
+            document.getElementById('practiceScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

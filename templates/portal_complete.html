@@ -6,13 +6,14 @@
     <title>🐘 PostgreSQL Practice</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f0f2f5;
             min-height: 100vh;
             padding: 20px;
         }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
         
         /* Header */
         .header {
@@ -28,15 +29,7 @@
             margin-bottom: 25px;
             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
         }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
+        .header h1 { font-size: 24px; display: flex; align-items: center; gap: 12px; }
         .header .status {
             background: rgba(255,255,255,0.2);
             padding: 6px 16px;
@@ -46,7 +39,6 @@
             align-items: center;
             gap: 8px;
         }
-        
         .header .status .dot {
             width: 8px;
             height: 8px;
@@ -54,41 +46,9 @@
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
-        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
-        }
-        
-        .header .actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .header .actions .btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: white;
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .header .actions .btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-        
-        .header .actions .btn-primary {
-            background: white;
-            color: #667eea;
-        }
-        
-        .header .actions .btn-primary:hover {
-            background: #f0f0ff;
         }
         
         /* Stats */
@@ -98,7 +58,6 @@
             gap: 16px;
             margin-bottom: 25px;
         }
-        
         .stat-card {
             background: white;
             padding: 20px;
@@ -106,27 +65,16 @@
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        
-        .stat-card .number {
-            font-size: 28px;
-            font-weight: 800;
-            color: #667eea;
-        }
-        
-        .stat-card .label {
-            font-size: 13px;
-            color: #888;
-            margin-top: 4px;
-        }
+        .stat-card .number { font-size: 28px; font-weight: 800; color: #667eea; }
+        .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
         
         /* Grid */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: 20px;
             margin-bottom: 25px;
         }
-        
         .card {
             background: white;
             border-radius: 16px;
@@ -134,43 +82,14 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: all 0.3s;
         }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        .card .icon { font-size: 36px; margin-bottom: 10px; }
+        .card h3 { font-size: 18px; color: #333; margin-bottom: 6px; }
+        .card p { color: #666; font-size: 14px; margin-bottom: 16px; }
         
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-        }
-        
-        .card .icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        
-        .card h3 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 6px;
-        }
-        
-        .card p {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-        
-        .form-group {
-            margin-bottom: 12px;
-        }
-        
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 4px;
-        }
-        
-        .form-group select,
-        .form-group input {
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 4px; }
+        .form-group select, .form-group input {
             width: 100%;
             padding: 10px 14px;
             border: 2px solid #e2e8f0;
@@ -179,17 +98,9 @@
             transition: border-color 0.3s;
             background: white;
         }
-        
-        .form-group select:focus,
-        .form-group input:focus {
+        .form-group select:focus, .form-group input:focus {
             border-color: #667eea;
             outline: none;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
         }
         
         .btn {
@@ -206,80 +117,20 @@
             gap: 8px;
             width: 100%;
         }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+        .btn-outline { background: transparent; color: #555; border: 2px solid #e2e8f0; }
+        .btn-outline:hover { border-color: #667eea; color: #667eea; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; width: auto; }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-        }
-        
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-        }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            color: #555;
-            border: 2px solid #e2e8f0;
-        }
-        
-        .btn-outline:hover {
-            border-color: #667eea;
-            color: #667eea;
-        }
-        
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-            width: auto;
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 15px;
-        }
-        
-        .loading.show {
-            display: block;
-        }
-        
+        .loading { display: none; text-align: center; padding: 15px; }
+        .loading.show { display: block; }
         .spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #667eea;
@@ -289,10 +140,7 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 8px;
         }
-        
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
         .output-log {
             background: #1e293b;
@@ -307,19 +155,16 @@
             display: none;
             line-height: 1.6;
         }
-        
         .output-log.show { display: block; }
         .output-log .success { color: #4ade80; }
         .output-log .error { color: #f87171; }
         
-        /* File Section */
         .file-section {
             background: white;
             border-radius: 16px;
             padding: 24px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        
         .file-section .header {
             display: flex;
             justify-content: space-between;
@@ -328,26 +173,11 @@
             gap: 12px;
             padding: 0 0 16px 0;
             border-bottom: 2px solid #f0f2f5;
-            background: transparent;
-            box-shadow: none;
             margin-bottom: 16px;
         }
+        .file-section .header h3 { font-size: 18px; color: #333; }
         
-        .file-section .header h3 {
-            font-size: 18px;
-            color: #333;
-        }
-        
-        .file-section .header .actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .file-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        
+        .file-list { max-height: 250px; overflow-y: auto; }
         .file-item {
             display: flex;
             justify-content: space-between;
@@ -355,40 +185,14 @@
             padding: 10px 12px;
             border-bottom: 1px solid #f0f2f5;
         }
+        .file-item:hover { background: #f8f9ff; }
+        .file-item .name { font-weight: 500; color: #333; }
+        .file-item .actions { display: flex; gap: 6px; }
+        .file-item .actions .btn { padding: 4px 12px; font-size: 11px; width: auto; }
         
-        .file-item:hover {
-            background: #f8f9ff;
-        }
+        .empty { text-align: center; padding: 30px; color: #999; }
+        .empty .icon { font-size: 40px; display: block; margin-bottom: 8px; }
         
-        .file-item .name {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .file-item .actions {
-            display: flex;
-            gap: 6px;
-        }
-        
-        .file-item .actions .btn {
-            padding: 4px 12px;
-            font-size: 11px;
-            width: auto;
-        }
-        
-        .empty {
-            text-align: center;
-            padding: 30px;
-            color: #999;
-        }
-        
-        .empty .icon {
-            font-size: 40px;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        /* Toast */
         .toast-container {
             position: fixed;
             bottom: 24px;
@@ -399,7 +203,6 @@
             gap: 8px;
             max-width: 400px;
         }
-        
         .toast {
             padding: 14px 20px;
             border-radius: 10px;
@@ -414,153 +217,114 @@
             align-items: center;
             gap: 10px;
         }
-        
-        .toast.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        
+        .toast.show { transform: translateX(0); opacity: 1; }
         .toast.success { background: #10b981; }
         .toast.error { background: #ef4444; }
         .toast.info { background: #3b82f6; }
+        .toast .close { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 18px; margin-left: auto; }
         
-        .toast .close {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            font-size: 18px;
-            margin-left: auto;
-        }
-        
-        /* Responsive */
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; text-align: center; }
-            .header .actions { justify-content: center; }
             .grid { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
             .stats { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>
-        <span>🐘</span>
-        PostgreSQL Practice
-    </h1>
-    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-        <div class="status">
-            <span class="dot"></span>
-            Online
-        </div>
-        <div class="actions">
-            <a href="/practice" target="_blank">
-                <button class="btn btn-primary">🎯 Practice</button>
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- Stats -->
-<div class="stats">
-    <div class="stat-card">
-        <div class="number" id="statFiles">0</div>
-        <div class="label">Generated Files</div>
-    </div>
-    <div class="stat-card">
-        <div class="number" id="statQuestions">0</div>
-        <div class="label">Questions</div>
-    </div>
-    <div class="stat-card">
-        <div class="number">5</div>
-        <div class="label">Database Tables</div>
-    </div>
-    <div class="stat-card">
-        <div class="number">∞</div>
-        <div class="label">Practice Questions</div>
-    </div>
-</div>
-
-<!-- Grid -->
-<div class="grid">
-    
-    <!-- Generate Workbook -->
-    <div class="card">
-        <div class="icon">📄</div>
-        <h3>Generate Workbook</h3>
-        <p>Create SQL practice workbooks with answers</p>
-        <div class="form-group">
-            <label>📂 Schema File</label>
-            <select id="genFile">
-                <option value="examples/ecommerce.sql">🛒 E-Commerce</option>
-                <option value="examples/shop.sql">🏪 Shop</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>📊 Questions</label>
-            <input type="number" id="genCount" value="100" min="10" max="5000">
-        </div>
-        <button class="btn btn-primary" onclick="generateWorkbook()">🚀 Generate</button>
-        <div class="loading" id="genLoading"><div class="spinner"></div><p>Generating...</p></div>
-        <div class="output-log" id="genOutput"></div>
-    </div>
-
-    <!-- Practice -->
-    <div class="card">
-        <div class="icon">🎯</div>
-        <h3>Interactive Practice</h3>
-        <p>Practice SQL with instant feedback</p>
-        <a href="/practice" target="_blank">
-            <button class="btn btn-success">🐝 Open Practice</button>
-        </a>
-        <p style="font-size:12px; color:#888; margin-top:8px;">
-            ✨ Save progress • Resume anytime • Hints
-        </p>
-    </div>
-
-    <!-- Generate Database -->
-    <div class="card">
-        <div class="icon">🗄️</div>
-        <h3>Generate Database</h3>
-        <p>Create practice database with sample data</p>
-        <div class="form-group">
-            <label>🌱 Rows per table</label>
-            <input type="number" id="dbRows" value="100" min="10" max="10000">
-        </div>
-        <button class="btn btn-warning" onclick="generateDatabase()">🌳 Generate</button>
-        <div class="loading" id="dbLoading"><div class="spinner"></div><p>Generating...</p></div>
-        <div class="output-log" id="dbOutput"></div>
-    </div>
-
-    <!-- Upload -->
-    <div class="card">
-        <div class="icon">📤</div>
-        <h3>Upload Schema</h3>
-        <p>Upload your own SQL or Python files</p>
-        <div class="form-group">
-            <input type="file" id="uploadFile" accept=".sql,.py,.txt" style="padding:8px;">
-        </div>
-        <button class="btn btn-outline" onclick="uploadFile()">📤 Upload</button>
-        <div style="margin-top:8px; font-size:13px; color:#888;" id="uploadStatus"></div>
-    </div>
-
-</div>
-
-<!-- Files -->
-<div class="file-section">
+<div class="container">
+    <!-- Header -->
     <div class="header">
-        <h3>📂 Generated Files</h3>
-        <div class="actions">
-            <button class="btn btn-primary btn-sm" onclick="refreshFiles()">🔄 Refresh</button>
-            <button class="btn btn-danger btn-sm" onclick="clearOutput()">🗑️ Clear All</button>
+        <h1><span>🐘</span> PostgreSQL Practice</h1>
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div class="status"><span class="dot"></span> Online</div>
         </div>
     </div>
-    <div class="file-list" id="fileList">
-        <div class="empty">
-            <span class="icon">🌱</span>
-            <p>No files generated yet</p>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card"><div class="number" id="statFiles">0</div><div class="label">Generated Files</div></div>
+        <div class="stat-card"><div class="number" id="statQuestions">0</div><div class="label">Questions</div></div>
+        <div class="stat-card"><div class="number">5</div><div class="label">Database Tables</div></div>
+        <div class="stat-card"><div class="number">∞</div><div class="label">Practice Questions</div></div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid">
+        
+        <!-- Card 1: Generate Workbook -->
+        <div class="card">
+            <div class="icon">📄</div>
+            <h3>Generate Workbook</h3>
+            <p>Create SQL practice workbooks with questions and answers</p>
+            <div class="form-group">
+                <label>📂 Schema File</label>
+                <select id="genFile">
+                    <option value="examples/ecommerce.sql">🛒 E-Commerce</option>
+                    <option value="examples/shop.sql">🏪 Shop</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>📊 Number of Questions</label>
+                <input type="number" id="genCount" value="100" min="10" max="5000">
+            </div>
+            <button class="btn btn-primary" onclick="generateWorkbook()">🚀 Generate Workbook</button>
+            <div class="loading" id="genLoading"><div class="spinner"></div><p>Generating...</p></div>
+            <div class="output-log" id="genOutput"></div>
+        </div>
+
+        <!-- Card 2: Interactive Practice -->
+        <div class="card">
+            <div class="icon">🎯</div>
+            <h3>Interactive Practice</h3>
+            <p>Practice SQL with instant feedback, scoring, and hints</p>
+            <a href="/practice" target="_blank">
+                <button class="btn btn-success">🎯 Open Practice</button>
+            </a>
+            <p style="font-size:12px; color:#888; margin-top:8px;">
+                ✨ Save progress • Resume anytime • Hints • Detailed scoring
+            </p>
+        </div>
+
+        <!-- Card 3: Generate Database -->
+        <div class="card">
+            <div class="icon">🗄️</div>
+            <h3>Generate Database</h3>
+            <p>Create a practice PostgreSQL database with realistic data</p>
+            <div class="form-group">
+                <label>🌱 Rows per table</label>
+                <input type="number" id="dbRows" value="100" min="10" max="10000">
+            </div>
+            <button class="btn btn-warning" onclick="generateDatabase()">🌳 Generate Database</button>
+            <div class="loading" id="dbLoading"><div class="spinner"></div><p>Generating...</p></div>
+            <div class="output-log" id="dbOutput"></div>
+        </div>
+
+        <!-- Card 4: Upload Schema -->
+        <div class="card">
+            <div class="icon">📤</div>
+            <h3>Upload Schema</h3>
+            <p>Upload your own SQL or Python schema files</p>
+            <div class="form-group">
+                <input type="file" id="uploadFile" accept=".sql,.py,.txt" style="padding:8px; width:100%; border:2px solid #e2e8f0; border-radius:10px;">
+            </div>
+            <button class="btn btn-outline" onclick="uploadFile()">📤 Upload File</button>
+            <div style="margin-top:8px; font-size:13px; color:#888;" id="uploadStatus"></div>
+        </div>
+
+    </div>
+
+    <!-- Files Section -->
+    <div class="file-section">
+        <div class="header">
+            <h3>📂 Generated Files</h3>
+            <div>
+                <button class="btn btn-primary btn-sm" onclick="refreshFiles()">🔄 Refresh</button>
+                <button class="btn btn-danger btn-sm" onclick="clearOutput()">🗑️ Clear All</button>
+            </div>
+        </div>
+        <div class="file-list" id="fileList">
+            <div class="empty"><span class="icon">🌱</span><p>No files generated yet</p></div>
         </div>
     </div>
 </div>
@@ -569,9 +333,7 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-    // ============================================
-    // TOAST
-    // ============================================
+    // Toast
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -589,9 +351,7 @@
         }, 4000);
     }
 
-    // ============================================
-    // GENERATE WORKBOOK
-    // ============================================
+    // Generate Workbook
     async function generateWorkbook() {
         const file = document.getElementById('genFile').value;
         const count = document.getElementById('genCount').value;
@@ -630,9 +390,7 @@
         }
     }
 
-    // ============================================
-    // GENERATE DATABASE
-    // ============================================
+    // Generate Database
     async function generateDatabase() {
         const rows = document.getElementById('dbRows').value;
         const loading = document.getElementById('dbLoading');
@@ -666,9 +424,7 @@
         }
     }
 
-    // ============================================
-    // UPLOAD FILE
-    // ============================================
+    // Upload File
     async function uploadFile() {
         const fileInput = document.getElementById('uploadFile');
         const file = fileInput.files[0];
@@ -705,9 +461,7 @@
         }
     }
 
-    // ============================================
-    // FILE MANAGEMENT
-    // ============================================
+    // File Management
     async function refreshFiles() {
         try {
             const resp = await fetch('/api/files');
@@ -774,9 +528,7 @@
         }
     }
 
-    // ============================================
-    // STATS
-    // ============================================
+    // Stats
     async function updateStats() {
         try {
             const resp = await fetch('/api/status');
@@ -786,9 +538,7 @@
         } catch(e) {}
     }
 
-    // ============================================
-    // INIT
-    // ============================================
+    // Init
     refreshFiles();
     setInterval(refreshFiles, 30000);
 </script>

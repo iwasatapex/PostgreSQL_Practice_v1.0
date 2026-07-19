@@ -1,0 +1,15 @@
+{
+  "session_id": "test123",
+  "user_name": "TestUser",
+  "start_time": "2024-01-01T00:00:00",
+  "last_updated": "2024-01-01T00:00:00",
+  "total_questions": 5,
+  "answered_questions": 0,
+  "correct_answers": 0,
+  "current_question_index": 0,
+  "questions": [],
+  "results": [],
+  "difficulty_counts": {"Beginner": 0, "Intermediate": 0, "Advanced": 0, "Expert": 0},
+  "is_complete": false,
+  "total_hints_used": 0
+}

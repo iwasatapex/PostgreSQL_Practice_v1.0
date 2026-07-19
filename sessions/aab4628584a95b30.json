@@ -1,0 +1,162 @@
+{
+  "session_id": "aab4628584a95b30",
+  "user_name": "Anonymous",
+  "start_time": "2026-07-19T11:29:00.546122",
+  "last_updated": "2026-07-19T11:29:00.546129",
+  "questions": [
+    {
+      "id": 1,
+      "topic": "SELECT",
+      "difficulty": "Beginner",
+      "question": "List all records from the users table.",
+      "answer": "SELECT * FROM users;",
+      "explanation": "SELECT * returns all columns and rows.",
+      "tip": "Use specific columns in production.",
+      "hint": "Use SELECT * FROM users"
+    },
+    {
+      "id": 2,
+      "topic": "WHERE",
+      "difficulty": "Beginner",
+      "question": "Find all users where email is NULL.",
+      "answer": "SELECT * FROM users WHERE email IS NULL;",
+      "explanation": "IS NULL checks for NULL values.",
+      "tip": "Use IS NULL not = NULL.",
+      "hint": "Use WHERE email IS NULL"
+    },
+    {
+      "id": 3,
+      "topic": "ORDER BY",
+      "difficulty": "Beginner",
+      "question": "List all products ordered by price from highest to lowest.",
+      "answer": "SELECT * FROM products ORDER BY price DESC;",
+      "explanation": "ORDER BY sorts results.",
+      "tip": "DESC for descending order.",
+      "hint": "Use ORDER BY price DESC"
+    },
+    {
+      "id": 4,
+      "topic": "JOIN",
+      "difficulty": "Intermediate",
+      "question": "Show orders with customer names.",
+      "answer": "SELECT o.*, u.name FROM orders o JOIN users u ON o.user_id = u.id;",
+      "explanation": "JOIN connects tables.",
+      "tip": "Use aliases for readability.",
+      "hint": "Use JOIN with ON condition"
+    },
+    {
+      "id": 5,
+      "topic": "GROUP BY",
+      "difficulty": "Intermediate",
+      "question": "Count orders per user.",
+      "answer": "SELECT user_id, COUNT(*) FROM orders GROUP BY user_id;",
+      "explanation": "GROUP BY groups records.",
+      "tip": "Use COUNT for counting.",
+      "hint": "Use GROUP BY user_id"
+    },
+    {
+      "id": 1000,
+      "topic": "SELECT",
+      "difficulty": "Beginner",
+      "question": "List all records from the users table.",
+      "answer": "SELECT * FROM users;",
+      "explanation": "SELECT * returns all columns and rows.",
+      "tip": "Use specific columns in production.",
+      "hint": "Use SELECT * FROM users"
+    },
+    {
+      "id": 1001,
+      "topic": "WHERE",
+      "difficulty": "Beginner",
+      "question": "Find all users where email is NULL.",
+      "answer": "SELECT * FROM users WHERE email IS NULL;",
+      "explanation": "IS NULL checks for NULL values.",
+      "tip": "Use IS NULL not = NULL.",
+      "hint": "Use WHERE email IS NULL"
+    },
+    {
+      "id": 1002,
+      "topic": "ORDER BY",
+      "difficulty": "Beginner",
+      "question": "List all products ordered by price from highest to lowest.",
+      "answer": "SELECT * FROM products ORDER BY price DESC;",
+      "explanation": "ORDER BY sorts results.",
+      "tip": "DESC for descending order.",
+      "hint": "Use ORDER BY price DESC"
+    },
+    {
+      "id": 1003,
+      "topic": "JOIN",
+      "difficulty": "Intermediate",
+      "question": "Show orders with customer names.",
+      "answer": "SELECT o.*, u.name FROM orders o JOIN users u ON o.user_id = u.id;",
+      "explanation": "JOIN connects tables.",
+      "tip": "Use aliases for readability.",
+      "hint": "Use JOIN with ON condition"
+    },
+    {
+      "id": 1004,
+      "topic": "GROUP BY",
+      "difficulty": "Intermediate",
+      "question": "Count orders per user.",
+      "answer": "SELECT user_id, COUNT(*) FROM orders GROUP BY user_id;",
+      "explanation": "GROUP BY groups records.",
+      "tip": "Use COUNT for counting.",
+      "hint": "Use GROUP BY user_id"
+    },
+    {
+      "id": 1005,
+      "topic": "SELECT",
+      "difficulty": "Beginner",
+      "question": "List all records from the products table.",
+      "answer": "SELECT * FROM users;",
+      "explanation": "SELECT * returns all columns and rows.",
+      "tip": "Use specific columns in production.",
+      "hint": "Use SELECT * FROM users"
+    },
+    {
+      "id": 1006,
+      "topic": "WHERE",
+      "difficulty": "Beginner",
+      "question": "Find all users where email is NULL.",
+      "answer": "SELECT * FROM users WHERE email IS NULL;",
+      "explanation": "IS NULL checks for NULL values.",
+      "tip": "Use IS NULL not = NULL.",
+      "hint": "Use WHERE email IS NULL"
+    },
+    {
+      "id": 1007,
+      "topic": "ORDER BY",
+      "difficulty": "Beginner",
+      "question": "List all products ordered by price from highest to lowest.",
+      "answer": "SELECT * FROM products ORDER BY price DESC;",
+      "explanation": "ORDER BY sorts results.",
+      "tip": "DESC for descending order.",
+      "hint": "Use ORDER BY price DESC"
+    },
+    {
+      "id": 1008,
+      "topic": "JOIN",
+      "difficulty": "Intermediate",
+      "question": "Show orders with customer names.",
+      "answer": "SELECT o.*, u.name FROM orders o JOIN users u ON o.user_id = u.id;",
+      "explanation": "JOIN connects tables.",
+      "tip": "Use aliases for readability.",
+      "hint": "Use JOIN with ON condition"
+    },
+    {
+      "id": 1009,
+      "topic": "GROUP BY",
+      "difficulty": "Intermediate",
+      "question": "Count orders per user.",
+      "answer": "SELECT user_id, COUNT(*) FROM orders GROUP BY user_id;",
+      "explanation": "GROUP BY groups records.",
+      "tip": "Use COUNT for counting.",
+      "hint": "Use GROUP BY user_id"
+    }
+  ],
+  "current_index": 0,
+  "results": [],
+  "correct_answers": 0,
+  "total_hints_used": 0
+}

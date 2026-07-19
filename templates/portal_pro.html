@@ -14,7 +14,6 @@
             padding: 20px;
         }
         
-        /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px 30px;
@@ -60,11 +59,6 @@
             50% { opacity: 0.4; }
         }
         
-        .header .actions {
-            display: flex;
-            gap: 10px;
-        }
-        
         .header .actions .btn {
             padding: 8px 20px;
             border: none;
@@ -75,6 +69,8 @@
             transition: all 0.3s;
             color: white;
             background: rgba(255,255,255,0.2);
+            text-decoration: none;
+            display: inline-block;
         }
         
         .header .actions .btn:hover {
@@ -91,7 +87,6 @@
             background: #f0f0ff;
         }
         
-        /* Stats */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -119,7 +114,6 @@
             margin-top: 4px;
         }
         
-        /* Grid */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -184,12 +178,6 @@
         .form-group input:focus {
             border-color: #667eea;
             outline: none;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
         }
         
         .btn {
@@ -264,12 +252,6 @@
             width: auto;
         }
         
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
         .loading {
             display: none;
             text-align: center;
@@ -312,7 +294,6 @@
         .output-log .success { color: #4ade80; }
         .output-log .error { color: #f87171; }
         
-        /* File Section */
         .file-section {
             background: white;
             border-radius: 16px;
@@ -336,11 +317,6 @@
         .file-section .header h3 {
             font-size: 18px;
             color: #333;
-        }
-        
-        .file-section .header .actions {
-            display: flex;
-            gap: 8px;
         }
         
         .file-list {
@@ -388,7 +364,6 @@
             margin-bottom: 8px;
         }
         
-        /* Toast */
         .toast-container {
             position: fixed;
             bottom: 24px;
@@ -433,12 +408,10 @@
             margin-left: auto;
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; text-align: center; }
             .header .actions { justify-content: center; }
             .grid { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
             .stats { grid-template-columns: 1fr 1fr; }
         }
     </style>
@@ -456,9 +429,7 @@
             Online
         </div>
         <div class="actions">
-            <a href="/practice" target="_blank">
-                <button class="btn btn-primary">🎯 Practice</button>
-            </a>
+            <a href="/practice" target="_blank" class="btn btn-primary">🎯 Practice</a>
         </div>
     </div>
 </div>
@@ -552,7 +523,7 @@
 <div class="file-section">
     <div class="header">
         <h3>📂 Generated Files</h3>
-        <div class="actions">
+        <div>
             <button class="btn btn-primary btn-sm" onclick="refreshFiles()">🔄 Refresh</button>
             <button class="btn btn-danger btn-sm" onclick="clearOutput()">🗑️ Clear All</button>
         </div>

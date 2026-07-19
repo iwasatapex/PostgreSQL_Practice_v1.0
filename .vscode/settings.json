@@ -1,8 +1,21 @@
 {
-    "python.defaultInterpreterPath": ".venv/bin/python",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 4,
-    "files.autoSave": "afterDelay",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.terminal.activateEnvForCommands": true,
+    "python.terminal.executeInFileDir": true,
+    "python.terminal.launchArgs": [],
     "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.autoImportCompletions": true
+    "python.analysis.autoImportCompletions": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": false,
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    }
 }
